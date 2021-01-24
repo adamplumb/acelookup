@@ -29,13 +29,12 @@ if ($name) {
                                 where 
                                     weenie.type = 10
                                     and wps.type = 1
-                                    and wpb.type = 19
-                                    and wpb.value = 1
+                                    and wpb.type = 19 and wpb.value = 1
                                     and wpi.type = 25
-                                    and wps.value like ?
+                                    and (wps.value like ? or weenie.class_Name like ?)
                                 order by level asc");
 
-    $statement->execute(array("%${name}%"));
+    $statement->execute(array("%${name}%", "%${name}%"));
 
     while ($row = $statement->fetch()) {
         $results[] = $row;
