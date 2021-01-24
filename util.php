@@ -46,9 +46,10 @@ function getCreateList($weenieId) {
                                     wps.value name
                                 from weenie_properties_create_list wpcl
                                 left join weenie_properties_string wps on (wps.object_Id = wpcl.weenie_Class_Id)
-                                join weenie on (weenie.class_Id = wpcl.weenie_Class_Id)
+                                left join weenie on (weenie.class_Id = wpcl.weenie_Class_Id)
                                 where 
                                     wpcl.object_id = ?
+                                    and wpcl.weenie_Class_Id != 0
                                     and (wps.type = 1 or wps.type is null)");
 
     $statement->execute(array($weenieId));
