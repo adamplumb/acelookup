@@ -19,13 +19,10 @@ function getCreature($weenieId) {
                                         wpi.value level
                                     from weenie 
                                         join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
-                                        join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id)
                                         join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id)
                                     where 
                                         weenie.type = 10
                                         and wps.type = 1
-                                        and wpb.type = 19
-                                        and wpb.value = 1
                                         and wpi.type = 25
                                         and weenie.class_Id = ?
                                     order by level asc");

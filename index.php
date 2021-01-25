@@ -24,15 +24,15 @@ if ($name) {
                                     wpi.value level
                                 from weenie 
                                     join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
-                                    join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id)
+                                    left join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id and wpb.type = 19)
                                     join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id)
                                 where 
                                     weenie.type = 10
                                     and wps.type = 1
-                                    and wpb.type = 19 and wpb.value = 1
+                                    and (wpb.value = 1 or wpb.value is null)
                                     and wpi.type = 25
                                     and (wps.value like ? or weenie.class_Name like ?)
-                                order by level asc");
+                                order by level asc, id asc");
 
     $statement->execute(array("%${name}%", "%${name}%"));
 
