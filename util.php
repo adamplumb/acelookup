@@ -76,7 +76,26 @@ function getBodyArmor($weenieId) {
         'Hand',
         'Upper Leg',
         'Lower Leg',
-        'Foot'
+        'Foot',
+        'Horn',
+        'Front Leg',
+        '',
+        'Front Foot',
+        'Rear Leg',
+        '',
+        'Rear Foot',
+        'Torso',
+        'Tail',
+        'Arm',
+        'Leg',
+        'Claw',
+        'Wings',
+        'Breath',
+        'Tentacle',
+        'Upper Tentacle',
+        'Lower Tentacle',
+        'Cloak',
+        'NumParts'
     );
 
     while ($row = $armorStatement->fetch(PDO::FETCH_ASSOC)) {
@@ -101,8 +120,34 @@ function getAttributes2nd($weenieId) {
     return getKeyValues('attribute_2nd', $weenieId, 'type', 'current_Level');
 }
 
-function getSkills($weenieId) {
-    return getKeyValues('skill', $weenieId, 'type', 'init_Level');
+function getSkills($weenieId, $attributes) {    
+    $baseSkills = getKeyValues('skill', $weenieId, 'type', 'init_Level');
+    
+    $finalSkills = array();
+    foreach ($baseSkills as $typeNumber => $value) {
+        $skillName = SKILLS_LIST[$typeNumber];
+        $formula = SKILL_FORMULAS[$skillName];
+        
+        $add = 0;
+        if ($formula) {
+            if ($formula[0] && $formula[1]) {
+                $first = $attributes[$formula[0]];
+                $second = $attributes[$formula[1]];
+                $divisor = $formula[2];
+                
+                $add = ($first + $second) / $divisor;
+            } else if ($formula[0]) {
+                $first = $attributes[$formula[0]];
+                $divisor = $formula[2];
+                
+                $add = ($first / $divisor);                
+            }
+        }
+        
+        $finalSkills[$typeNumber] = $value + round($add);
+    }
+    
+    return $finalSkills;
 }
 
 function getKeyValues($propertyType, $weenieId, $keyColumn, $valueColumn) {
@@ -377,3 +422,32 @@ const SKILLS_LIST = [
     'Challenge',          /* Unimplemented */
     'Summoning'
 ];
+
+const SKILL_FORMULAS = array(
+    'Melee Defense'     => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
+    'Missile Defense'   => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 5),
+    'Arcane Lore'       => array(PropertyAttribute::Focus, null, 3),
+    'Magic Defense'     => array(PropertyAttribute::Focus, PropertyAttribute::Self, 7),
+    'Mana Conversion'   => array(PropertyAttribute::Focus, PropertyAttribute::Self, 6),
+    'Item Tinkering'    => array(PropertyAttribute::Focus, PropertyAttribute::Coordination, 2),
+    'Assess Person'     => null,
+    'Deception'         => null,
+    'Healing'           => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
+    'Jump'              => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 2),
+    'Lockpick'          => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
+    'Run'               => array(PropertyAttribute::Quickness, null, 1),
+    'Assess Creature'   => null,
+    'Weapon Tinkering'  => array(PropertyAttribute::Strength, PropertyAttribute::Focus, 2),
+    'Armor Tinkering'   => array(PropertyAttribute::Focus, PropertyAttribute::Endurance, 2),
+    'Magic Item Tinkering'  => array(PropertyAttribute::Focus, null, 1),
+    'Creature Enchantment'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'Item Enchantment'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'Life Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'War Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'Void Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'Two Handed Combat'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Light Weapons'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Heavy Weapons'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Finesse Weapons'  => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
+    'Missile Weapons'  => array(PropertyAttribute::Coordination, null, 2)
+);

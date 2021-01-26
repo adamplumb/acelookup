@@ -15,7 +15,7 @@ $bodyArmor = getBodyArmor($classId);
 $floats = getFloats($classId);
 $attributes = getAttributes($classId);
 $attributes2nd = getAttributes2nd($classId);
-$skills = getSkills($classId);
+$skills = getSkills($classId, $attributes);
 $createList = getCreateList($classId);
 
 ?>
