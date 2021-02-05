@@ -150,7 +150,7 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
 
 <br />
 <h3>Effective Magical Resistance</h3>
-<p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A missing value means the resistance value is missing from the ACE World database.</p>
+<p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A missing value means the resistance value is missing from the ACE World database, and seems to default to 100%</p>
 
 <table class="horizontal-table">
 <thead>
