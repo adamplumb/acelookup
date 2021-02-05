@@ -134,7 +134,7 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
         $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         
-        $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModByType: {$armorByDamageType[$damageType]['armorMod']}, ResistMod: {$armorByDamageType[$damageType]['resist']}";
+        $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModVs{$damageType}: {$armorByDamageType[$damageType]['armorMod']}, Resist{$damageType}: {$armorByDamageType[$damageType]['resist']}";
 ?>
         <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
 <?php
