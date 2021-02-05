@@ -165,6 +165,73 @@ function getKeyValues($propertyType, $weenieId, $keyColumn, $valueColumn) {
     return $properties;    
 }
 
+
+function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
+    foreach ($bodyArmor as $bodyPart => $bodyPartArmor) {
+        $effectiveArmor[$bodyPart] = array();
+
+        foreach ($damageTypes as $damageType => $damageProps) {
+            $armorModProp = $damageProps['ArmorModProperty'];
+            $resistModProp = $damageProps['ResistProperty'];
+
+            $baseArmor = $bodyPartArmor["base_Armor"];
+            $armorModVsDamageType = isset($floats[$armorModProp]) ? round($floats[$armorModProp], 2) : 1;
+            $resistVsDamageType = isset($floats[$resistModProp]) ? round($floats[$resistModProp], 2) : 1;
+            
+            $effectiveArmor[$bodyPart][$damageType] = array(
+                'baseArmor'     => $baseArmor,
+                'armorMod'      => $armorModVsDamageType,
+                'resist'        => $resistVsDamageType,
+                'calculated'    => round(($baseArmor * $armorModVsDamageType) / $resistVsDamageType)
+            );
+        }
+    }
+    
+    return $effectiveArmor;
+}
+
+function getMagicResistances($damageTypes, $floats) {
+    $resistances = array();
+    
+    foreach ($damageTypes as $damageType => $damageProps) {
+        $resistance = isset($floats[$damageProps['ResistProperty']]) ? $floats[$damageProps['ResistProperty']] : 0;
+        
+        if ($resistance) {
+            $resistances[$damageType] = round($resistance, 2);
+        }
+    }
+    
+    return $resistances;
+}
+
+function getArmorRange($effectiveArmor, $key) {
+    $min = null;
+    $max = null;
+    
+    foreach ($effectiveArmor as $bodyPart => $bodyPartArmor) {
+        foreach ($bodyPartArmor as $damageType => $values) {
+            $value = $values[$key];
+            
+            if ($min == null || $value < $min) {
+                $min = $value;
+            }
+            
+            if ($max == null || $value > $max) {
+                $max = $value;
+            }
+        }
+    }
+    
+    return array(
+        'min' => $min,
+        'max' => $max
+    );
+}
+
+function percentageBetween($x, $a, $b) {
+    return round(($x - $a) / ($b - $a), 2);
+}
+
 class PropertyFloat {
     // properties marked as ServerOnly are properties we never saw in PCAPs, from here:
     // http://ac.yotesfan.com/ace_object/not_used_enums.php

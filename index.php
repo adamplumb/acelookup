@@ -39,6 +39,11 @@ if ($name) {
     while ($row = $statement->fetch()) {
         $results[] = $row;
     }
+    
+    if (count($results) == 1) {
+        header("Location: mob.php?id={$results[0]['id']}\n");
+        exit;
+    }
 }
 ?>
 
@@ -88,6 +93,10 @@ if ($name) {
 </table>
 <?php
 }
+
+include_once 'footer.php';
 ?>
+
+
 </body>
 </html>

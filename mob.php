@@ -17,12 +17,53 @@ $attributes = getAttributes($classId);
 $attributes2nd = getAttributes2nd($classId);
 $skills = getSkills($classId, $attributes);
 $createList = getCreateList($classId);
+$damageTypes = array(
+    'Slash' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsSlash,
+        'ResistProperty' => PropertyFloat::ResistSlash
+    ), 
+    'Bludgeon' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsBludgeon,
+        'ResistProperty' => PropertyFloat::ResistBludgeon 
+    ), 
+    'Pierce' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsPierce,
+        'ResistProperty' => PropertyFloat::ResistPierce 
+    ), 
+    'Cold' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsCold,
+        'ResistProperty' => PropertyFloat::ResistCold 
+    ), 
+    'Fire' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsFire,
+        'ResistProperty' => PropertyFloat::ResistFire 
+    ), 
+    'Acid' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsAcid,
+        'ResistProperty' => PropertyFloat::ResistAcid 
+    ), 
+    'Electric' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsElectric,
+        'ResistProperty' => PropertyFloat::ResistElectric 
+    ), 
+    'Nether' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsNether,
+        'ResistProperty' => PropertyFloat::ResistNether
+    )
+);
+
+
+$effectiveArmor = getEffectiveArmor($bodyArmor, $damageTypes, $floats);
+$magicResistances = getMagicResistances($damageTypes, $floats);
+
+$maxRGB = 200;
+$minRGB = 20;
 
 ?>
 
 <html>
 <head>
-    <title>ACE Mob: <?php echo $mob['name']; ?></title>
+    <title>ACE Mob: <?php echo $mob['name']; ?> (<?php echo $mob['id']; ?>)</title>
     <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
 </head>
 <body>
@@ -59,38 +100,46 @@ $createList = getCreateList($classId);
 </tr>
 </table>
 
-<h3>Physical Armor</h3>
+<br />
+<h3>Effective Physical Armor</h3>
+<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i></p>
 
 <table class="horizontal-table">
 <thead>
     <tr>
         <th>Body Part</th>
-        <th>Slash</th>
-        <th>Bludgeon</th>
-        <th>Pierce</th>
-        <th>Cold</th>
-        <th>Fire</th>
-        <th>Acid</th>
-        <th>Electric</th>
-        <th>Nether</th>
+<?php
+foreach ($damageTypes as $damageType => $damageProps) {
+?>
+        <th><?php echo $damageType; ?></th>
+<?php
+}
+?>
     </tr>
 </thead>
 <tbody>
 <?php
+
+$armorRange = getArmorRange($effectiveArmor, 'calculated');
 $index = 0;
-foreach ($bodyArmor as $key => $bodyPartArmor) {
-    $rowClass = $index % 2 == 1 ? ' class="alt"' : '';
+foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
 ?>
-    <tr<?php echo $rowClass; ?>>
-        <td class="strong"><?php echo $key; ?></td>
-        <td><?php echo round($bodyPartArmor['base_Armor'] * $floats[PropertyFloat::ArmorModVsSlash]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Bludgeon'] * $floats[PropertyFloat::ArmorModVsBludgeon]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Pierce'], $floats[PropertyFloat::ArmorModVsPierce]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Cold'] * $floats[PropertyFloat::ArmorModVsCold]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Fire'] * $floats[PropertyFloat::ArmorModVsFire]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Acid'] * $floats[PropertyFloat::ArmorModVsAcid]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Electric'] * $floats[PropertyFloat::ArmorModVsElectric]); ?></td>
-        <td><?php echo round($bodyPartArmor['armor_Vs_Nether'] * (isset($floats[PropertyFloat::ArmorModVsNether]) ? $floats[PropertyFloat::ArmorModVsNether] : 0)); ?></td>
+    <tr class="alt">
+        <td class="strong"><?php echo $bodyPart; ?></td>
+<?php
+    foreach ($damageTypes as $damageType => $damageProps) {
+        $val = $armorByDamageType[$damageType]['calculated'];
+        $percentBetween = percentageBetween($val, $armorRange['min'], $armorRange['max']);
+        
+        $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
+        $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
+        
+        $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModByType: {$armorByDamageType[$damageType]['armorMod']}, ResistMod: {$armorByDamageType[$damageType]['resist']}";
+?>
+        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
+<?php
+    }
+?>
     </tr>
 <?php
     $index++;
@@ -99,6 +148,52 @@ foreach ($bodyArmor as $key => $bodyPartArmor) {
 </tbody>
 </table>
 
+<br />
+<h3>Effective Magical Resistance</h3>
+<p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A missing value means the resistance value is missing from the ACE World database.</p>
+
+<table class="horizontal-table">
+<thead>
+    <tr>
+<?php
+foreach ($damageTypes as $damageType => $damageProps) {
+?>
+        <th><?php echo $damageType; ?></th>
+<?php
+
+
+}
+?>
+    </tr>
+</thead>
+<tbody>
+    <tr class="alt">
+<?php
+    $minResist = min(array_values($magicResistances));
+    $maxResist = max(array_values($magicResistances));
+    foreach ($damageTypes as $damageType => $a) {
+        $resistance = isset($magicResistances[$damageType]) ? $magicResistances[$damageType] : null;
+        
+        if ($resistance) {
+            $percentBetween = percentageBetween($resistance, $minResist, $maxResist);
+            
+            $rgb = round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
+            $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
+?>
+        <td style="background-color: <?php echo $rgbLabel; ?>"><?php echo ($resistance ? ($resistance * 100) . '%' : ''); ?></td>
+<?php
+        } else {
+?>
+        <td>Missing</td>
+<?php
+        }
+    }
+?>
+    </tr>
+</tbody>
+</table>
+
+<br />
 <h3>Attributes</h3>
 <table class="vertical-table">
 <tbody>
@@ -141,6 +236,7 @@ foreach ($bodyArmor as $key => $bodyPartArmor) {
 </tbody>
 </table>
 
+<br />
 <h3>Skills</h3>
 <table class="vertical-table">
 <tbody>
@@ -157,7 +253,7 @@ foreach ($skills as $typeNumber => $value) {
 ?>
 </table>
 
-
+<br />
 <h3>Create List</h3>
 <table class="horizontal-table">
 <thead>
@@ -190,6 +286,10 @@ foreach ($createList as $row) {
 ?>
 </tbody>
 </table>
+
+<?php
+include_once 'footer.php';
+?>
 
 </body>
 </html>
