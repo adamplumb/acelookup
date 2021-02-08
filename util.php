@@ -229,6 +229,10 @@ function getArmorRange($effectiveArmor, $key) {
 }
 
 function percentageBetween($x, $a, $b) {
+    if ($b - $a == 0) {
+        return 1;
+    }
+
     return round(($x - $a) / ($b - $a), 2);
 }
 
