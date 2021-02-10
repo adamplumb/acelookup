@@ -11,6 +11,11 @@ if (!$classId) {
 }
 
 $mob = getCreature($classId);
+if (!$mob) {
+    print("Not a valid creature\n");
+    exit;
+}
+
 $bodyArmor = getBodyArmor($classId);
 $floats = getFloats($classId);
 $ints = getInts($classId);
@@ -19,6 +24,7 @@ $attributes2nd = getAttributes2nd($classId);
 $skills = getSkills($classId, $attributes);
 $createList = getCreateList($classId);
 $spellBook = getSpellBook($classId);
+$wieldedItems = getWieldedItems($classId);
 $damageTypes = array(
     'Slash' => array(
         'ArmorModProperty' => PropertyFloat::ArmorModVsSlash,
@@ -149,9 +155,9 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
         $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModVs{$damageType}: {$armorByDamageType[$damageType]['armorMod']}, Resist{$damageType}: {$armorByDamageType[$damageType]['resist']}";
 
         $damageTypeId = $bodyArmor[$bodyPart]['d_Type'];
-        $damageTypeLabel = $damageTypeId ? DAMAGE_TYPE[$damageTypeId] : '';
+        $damageTypeLabel = getDamageTypeLabel($damageTypeId);
         $damageValue = $bodyArmor[$bodyPart]['d_Val'];
-        $minDamage = $damageValue * (1 - $bodyArmor[$bodyPart]['d_Var']);
+        $minDamage = getMinDamage($damageValue, $bodyArmor[$bodyPart]['d_Var']);
 ?>
         <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
 <?php
@@ -181,8 +187,6 @@ foreach ($damageTypes as $damageType => $damageProps) {
 ?>
         <th><?php echo $damageType; ?></th>
 <?php
-
-
 }
 ?>
     </tr>
@@ -318,6 +322,56 @@ if ($spellBook) {
 ?>
 
 <br />
+<h3>Wielded Treasure / Weapons / Armor</h3>
+<p class="note">This is the probability that a creature will have these wielded items.</p>
+
+<?php
+if ($wieldedItems) {
+?>
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Probability</th>
+        <th>Damage Type</th>
+        <th>Damage</th>
+        <th>Links</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+    foreach ($wieldedItems as $item) {
+?>
+    <tr>
+        <td><?php echo $item['id']; ?></td>
+        <td><?php echo $item['code']; ?></td>
+        <td><?php echo $item['name']; ?></td>
+        <td><?php echo round(100 * $item['probability'], 2); ?>%</td>
+        <td><?php echo $item['damageType']; ?></td>
+        <td><?php echo $item['minDamage']; ?> - <?php echo $item['damage']; ?></td>
+        <td>
+            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $item['name']); ?>" target="acpedia">ACPedia</a>
+            /
+            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $item['id']; ?>" target="yotesfan">Yotesfan</a>
+        </td>
+    </tr>
+<?php
+    }
+?>
+</tbody>
+</table>
+<?php
+} else {
+?>
+    <p><i>No spells found</i></p>
+<?php    
+}
+?>
+
+
+<br />
 <h3>Drop Items</h3>
 <p class="note">These are the special items this creature may possibly drop on death, in addition to regular loot.</p>
 
@@ -347,6 +401,8 @@ if (count($createList) > 0) {
         <td><?php echo round(100 * $row['chance']); ?>%</td>
         <td>
             <a href="http://acpedia.org/<?php echo $row['name']; ?>" target="acpedia">ACPedia</a>
+            /
+            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $row['id']; ?>" target="yotesfan">Yotesfan</a>
         </td>
     </tr>
 <?php

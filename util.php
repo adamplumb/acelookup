@@ -262,6 +262,66 @@ function getArmorRange($effectiveArmor, $key) {
     );
 }
 
+function getWieldedItems($weenieId) {
+    global $dbh;
+
+    /**
+     * wps.type 1 is the weenie name
+     * wpi.type 45 is the damage type
+     * wdid.type 32 is the wielded treasure type
+     */
+    $statement = $dbh->prepare("select 
+                                    weenie.class_Id id,
+                                    weenie.class_Name code,
+                                    tw.probability probability, 
+                                    wps.value name,
+                                    wpi.value damageType,
+                                    wpiD.value damage,
+                                    wpfDv.value damageVariance
+                                from
+                                    weenie_properties_d_i_d wdid 
+                                    join treasure_wielded tw on (wdid.value = tw.treasure_Type and wdid.type = 32)
+                                    join weenie on weenie.class_Id = tw.weenie_Class_Id
+                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
+                                    join weenie_properties_int wpi on (wpi.object_Id = weenie.class_Id and wpi.type = 45)
+                                    join weenie_properties_int wpiD on (wpiD.object_Id = weenie.class_id and wpiD.type = 44)
+                                    join weenie_properties_float wpfDv on (wpfDv.object_Id = weenie.class_id and wpfDv.type = 22)
+                                where
+                                    wdid.object_Id = ?");
+    $statement->execute(array($weenieId));
+
+    $items = array();
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $items[] = array(
+            'id'    => $row['id'],
+            'name'  => $row['name'],
+            'probability' => $row['probability'],
+            'code'      => $row['code'],
+            'damageType' => getDamageTypeLabel($row['damageType']),
+            'damage'    => $row['damage'],
+            'minDamage' => getMinDamage($row['damage'], $row['damageVariance'])
+        );
+    }
+    
+    return $items;    
+}
+
+function getMinDamage($damage, $variance) {
+    return $damage * (1 - $variance);
+}
+
+function getDamageTypeLabel($damageTypeBitMask) {
+    $vals = array();
+    
+    foreach (DAMAGE_TYPE as $key => $val) {
+        if ($val & $damageTypeBitMask) {
+            $vals[] = $key;
+        }
+    }
+    
+    return implode('/', $vals);
+}
+
 function percentageBetween($x, $a, $b) {
     if ($b - $a == 0) {
         return 1;
@@ -1146,11 +1206,16 @@ const CREATURE_TYPE = [
 ];
 
 const DAMAGE_TYPE = array(
-    1   => 'Slash',
-    2   => 'Pierce',
-    4   => 'Bludgeon',
-    8   => 'Cold',
-    16  => 'Fire',
-    32  => 'Acid',
-    64  => 'Electric'
+    'Slash'       => 0x1,
+    'Pierce'      => 0x2,
+    'Bludgeon'    => 0x4,
+    'Cold'        => 0x8,
+    'Fire'        => 0x10,
+    'Acid'        => 0x20,
+    'Electric'    => 0x40,
+    'Health'      => 0x80,
+    'Stamina'     => 0x100,
+    'Mana'        => 0x200,
+    'Nether'      => 0x400,
+    'Base'        => 0x10000000
 );
