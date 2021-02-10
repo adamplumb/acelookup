@@ -1145,3 +1145,13 @@ const CREATURE_TYPE = [
     'Gurog',
     'Anekshay'
 ];
+
+const DAMAGE_TYPE = array(
+    1   => 'Slash',
+    2   => 'Pierce',
+    4   => 'Bludgeon',
+    8   => 'Cold',
+    16  => 'Fire',
+    32  => 'Acid',
+    64  => 'Electric'
+);

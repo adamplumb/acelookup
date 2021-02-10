@@ -102,13 +102,15 @@ $minRGB = 20;
     <th>Links</th>
     <td>
             <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $mob['name']); ?>" target="acpedia">ACPedia</a>
+            /
+            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $mob['id']; ?>" target="yotesfan">Yotesfan</a>
     </td>
 </tr>
 </table>
 
 <br />
-<h3>Effective Physical Armor</h3>
-<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i></p>
+<h3>Effective Physical Armor and possible Body Part Damage</h3>
+<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i>.  The damage values do not account for any generated weapons and only come from creature body parts, so your mileage may vary.  A damage value also does not necessarily mean the creature will use that body part to attack.</p>
 
 <table class="horizontal-table">
 <thead>
@@ -121,6 +123,10 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <?php
 }
 ?>
+        <th style="background:transparent;">&nbsp;</th>
+        <th>Body Part</th>
+        <th>Damage Type</th>
+        <th>Amount</th>
     </tr>
 </thead>
 <tbody>
@@ -141,11 +147,20 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         
         $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModVs{$damageType}: {$armorByDamageType[$damageType]['armorMod']}, Resist{$damageType}: {$armorByDamageType[$damageType]['resist']}";
+
+        $damageTypeId = $bodyArmor[$bodyPart]['d_Type'];
+        $damageTypeLabel = $damageTypeId ? DAMAGE_TYPE[$damageTypeId] : '';
+        $damageValue = $bodyArmor[$bodyPart]['d_Val'];
+        $minDamage = $damageValue * (1 - $bodyArmor[$bodyPart]['d_Var']);
 ?>
         <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
 <?php
     }
 ?>
+        <td style="background:transparent;">&nbsp;</td>
+        <td class="strong"><?php echo $bodyPart; ?></td>
+        <td><?php echo $damageValue > 0 ? $damageTypeLabel : ''; ?></td>
+        <td><?php echo $damageValue > 0 ? "${minDamage} - {$damageValue}" : ''; ?></td>
     </tr>
 <?php
     $index++;
