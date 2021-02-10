@@ -13,10 +13,12 @@ if (!$classId) {
 $mob = getCreature($classId);
 $bodyArmor = getBodyArmor($classId);
 $floats = getFloats($classId);
+$ints = getInts($classId);
 $attributes = getAttributes($classId);
 $attributes2nd = getAttributes2nd($classId);
 $skills = getSkills($classId, $attributes);
 $createList = getCreateList($classId);
+$spellBook = getSpellBook($classId);
 $damageTypes = array(
     'Slash' => array(
         'ArmorModProperty' => PropertyFloat::ArmorModVsSlash,
@@ -85,6 +87,10 @@ $minRGB = 20;
     <td><?php echo $mob['name']; ?></td>
 </tr>
 <tr>
+    <th>Creature Type</th>
+    <td><?php echo CREATURE_TYPE[$ints[PropertyInt::CreatureType]]; ?></td>
+</tr>
+<tr>
     <th>Code</th>
     <td><?php echo $mob['code']; ?></td>
 </tr>
@@ -150,7 +156,7 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
 
 <br />
 <h3>Effective Magical Resistance</h3>
-<p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A missing value means the resistance value is missing from the ACE World database, and seems to default to 100%</p>
+<p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A higher value means you will do more relative damage.  A missing value means the resistance value is missing from the ACE World database, and seems to default to 100%</p>
 
 <table class="horizontal-table">
 <thead>
@@ -254,7 +260,55 @@ foreach ($skills as $typeNumber => $value) {
 </table>
 
 <br />
-<h3>Create List</h3>
+<h3>Spell Book</h3>
+<p class="note">This is the set of spells the creature has a chance to cast during each cast attempt.</p>
+
+<?php
+if ($spellBook) {
+?>
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Probability</th>
+        <th>Links</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+    foreach ($spellBook as $spell) {
+?>
+    <tr>
+        <td><?php echo $spell['id']; ?></td>
+        <td><?php echo $spell['name']; ?></td>
+        <td><?php echo $spell['probability']; ?>%</td>
+        <td>
+            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $spell['name']); ?>" target="acpedia">ACPedia</a>
+            /
+            <a href="http://ac.yotesfan.com/spells/spell/<?php echo $spell['id']; ?>" target="yotesfan">Yotesfan</a>
+        </td>
+    </tr>
+<?php
+    }
+?>
+</tbody>
+</table>
+<?php
+} else {
+?>
+    <p><i>No spells found</i></p>
+<?php    
+}
+?>
+
+<br />
+<h3>Drop Items</h3>
+<p class="note">These are the special items this creature may possibly drop on death, in addition to regular loot.</p>
+
+<?php
+if (count($createList) > 0) {
+?>
 <table class="horizontal-table">
 <thead>
     <tr>
@@ -267,9 +321,9 @@ foreach ($skills as $typeNumber => $value) {
 </thead>
 <tbody>
 <?php
-$index = 0;
-foreach ($createList as $row) {
-    $rowClass = $index % 2 == 1 ? ' class="alt"' : '';
+    $index = 0;
+    foreach ($createList as $row) {
+        $rowClass = $index % 2 == 1 ? ' class="alt"' : '';
 ?>
     <tr>
         <td><?php echo $row['id']; ?></td>
@@ -281,11 +335,19 @@ foreach ($createList as $row) {
         </td>
     </tr>
 <?php
-    $index++;
-}
+        $index++;
+    }
 ?>
 </tbody>
 </table>
+<?php
+} else {
+?>
+    <p><i>No drop items found</i></p>
+<?php    
+}
+
+?>
 
 <?php
 include_once 'footer.php';
