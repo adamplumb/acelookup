@@ -365,7 +365,7 @@ if ($wieldedItems) {
 <?php
 } else {
 ?>
-    <p><i>No spells found</i></p>
+    <p><i>No wielded items found</i></p>
 <?php    
 }
 ?>
