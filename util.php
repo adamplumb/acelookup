@@ -904,7 +904,6 @@ class WeenieType {
     const Lockpick = 23;
     const PressurePlate = 24;
     const LifeStone = 25;
-    const Switch = 26;
     const PKModifier = 27;
     const Healer = 28;
     const LightSource = 29;
