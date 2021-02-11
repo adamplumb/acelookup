@@ -22,7 +22,7 @@ function getCreature($weenieId) {
                                         join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
                                         join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id)
                                     where 
-                                        weenie.type = 10
+                                        weenie.type in (10, 15)
                                         and wps.type = 1
                                         and wpi.type = 25
                                         and weenie.class_Id = ?
@@ -212,11 +212,17 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             $armorModVsDamageType = isset($floats[$armorModProp]) ? round($floats[$armorModProp], 2) : 1;
             $resistVsDamageType = isset($floats[$resistModProp]) ? round($floats[$resistModProp], 2) : 1;
             
+            if ($resistVsDamageType == 0) {
+                $calculated = 'INF';
+            } else {
+                $calculated = round(($baseArmor * $armorModVsDamageType) / $resistVsDamageType);
+            }
+
             $effectiveArmor[$bodyPart][$damageType] = array(
                 'baseArmor'     => $baseArmor,
                 'armorMod'      => $armorModVsDamageType,
                 'resist'        => $resistVsDamageType,
-                'calculated'    => round(($baseArmor * $armorModVsDamageType) / $resistVsDamageType)
+                'calculated'    => $calculated
             );
         }
     }
@@ -245,6 +251,10 @@ function getArmorRange($effectiveArmor, $key) {
     foreach ($effectiveArmor as $bodyPart => $bodyPartArmor) {
         foreach ($bodyPartArmor as $damageType => $values) {
             $value = $values[$key];
+            
+            if ($value == 'INF') {
+                continue;
+            }
             
             if ($min == null || $value < $min) {
                 $min = $value;
@@ -327,6 +337,10 @@ function getDamageTypeLabelFromBitmask($damageTypeBitMask) {
 }
 
 function percentageBetween($x, $a, $b) {
+    if ($x == 'INF') {
+        return 1;
+    }
+
     if ($b - $a == 0) {
         return 1;
     }

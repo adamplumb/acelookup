@@ -29,7 +29,7 @@ if ($name) {
                                     join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id and wpi.type = 25)
                                     join weenie_properties_int wpiType on (wpiType.object_Id = weenie.class_Id and wpiType.type = 2)
                                 where 
-                                    weenie.type = 10
+                                    weenie.type in (10, 15)
                                     and (wpb.value = 1 or wpb.value is null)
                                     and (wps.value like ? or weenie.class_Name like ?)
                                 order by level asc, id asc");
