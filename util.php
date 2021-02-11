@@ -307,7 +307,7 @@ function getWieldedItems($weenieId) {
 }
 
 function getMinDamage($damage, $variance) {
-    return $damage * (1 - $variance);
+    return round($damage * (1 - $variance), 2);
 }
 
 function getDamageTypeLabel($damageTypeBitMask) {
