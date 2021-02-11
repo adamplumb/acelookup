@@ -4,5 +4,6 @@
         "user": "",
         "password": "",
         "version": "v0.9.213"
-    }
+    },
+    "cacheBuster": "202102101938"
 }
