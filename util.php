@@ -160,7 +160,7 @@ function getSkills($weenieId, $attributes) {
     $finalSkills = array();
     foreach ($baseSkills as $typeNumber => $value) {
         $skillName = SKILLS_LIST[$typeNumber];
-        $formula = SKILL_FORMULAS[$skillName];
+        $formula = isset(SKILL_FORMULAS[$skillName]) ? SKILL_FORMULAS[$skillName] : null;
         
         $add = 0;
         if ($formula) {
@@ -1099,6 +1099,9 @@ const SKILL_FORMULAS = array(
     'Healing'           => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
     'Jump'              => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 2),
     'Lockpick'          => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
+    'Alchemy'          => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
+    'Cooking'          => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
+    'Fletching'          => array(PropertyAttribute::Coordination, PropertyAttribute::Focus, 3),
     'Run'               => array(PropertyAttribute::Quickness, null, 1),
     'Assess Creature'   => null,
     'Weapon Tinkering'  => array(PropertyAttribute::Strength, PropertyAttribute::Focus, 2),
@@ -1115,6 +1118,9 @@ const SKILL_FORMULAS = array(
     'Heavy Weapons'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Finesse Weapons'  => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
     'Missile Weapons'  => array(PropertyAttribute::Coordination, null, 2),
+    'Thrown Weapon'  => array(PropertyAttribute::Coordination, null, 2),
+    'Bow'  => array(PropertyAttribute::Coordination, null, 2),
+    'Crossbow'  => array(PropertyAttribute::Coordination, null, 2),
     'Sneak Attack'      => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
     'Shield'            => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 2),
     'Axe'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
