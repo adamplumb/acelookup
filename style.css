@@ -1,6 +1,6 @@
 body {
     font-family: sans-serif;
-    font-size: 12px;
+    font-size: 12pt;
 }
 
 table th, table td {
@@ -29,8 +29,50 @@ table tr.alt td {
     background-color: #d9d9d9;
 }
 
+.lookup-form {
+    padding-top: 50px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+input[type="text"] {
+}
+
+input[type="submit"] {
+    padding: 3px 12px 4px 12px;
+}
+
 div.footer {
     display: block;
     text-align: center;
-    margin-top: 50px;
+    margin-top: 100px;
+}
+
+div.footer a {
+}
+
+@media only screen and (max-width: 600px) {
+    .lookup-table thead tr th:nth-child(3),
+    .lookup-table tbody tr td:nth-child(3),
+    .lookup-table thead tr th:nth-child(4),
+    .lookup-table tbody tr td:nth-child(4) {
+        display: none;
+    }
+    
+    .drop-items-table thead tr th:nth-child(3),
+    .drop-items-table tbody tr td:nth-child(3) {
+        display: none;
+    }
+    
+    .armor-table-container {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .magic-damage-container {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
 }

@@ -311,6 +311,10 @@ function getMinDamage($damage, $variance) {
 }
 
 function getDamageTypeLabel($damageTypeBitMask) {
+    return DAMAGE_TYPE_INT[$damageTypeBitMask];
+}
+
+function getDamageTypeLabelFromBitmask($damageTypeBitMask) {
     $vals = array();
     
     foreach (DAMAGE_TYPE as $key => $val) {
@@ -1091,13 +1095,21 @@ const SKILL_FORMULAS = array(
     'Life Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
     'War Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
     'Void Magic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
+    'VoidMagic'  => array(PropertyAttribute::Focus, PropertyAttribute::Self, 4),
     'Two Handed Combat'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Light Weapons'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Heavy Weapons'  => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Finesse Weapons'  => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
     'Missile Weapons'  => array(PropertyAttribute::Coordination, null, 2),
     'Sneak Attack'      => array(PropertyAttribute::Coordination, PropertyAttribute::Quickness, 3),
-    'Shield'            => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 2)
+    'Shield'            => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 2),
+    'Axe'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Dagger'           => array(PropertyAttribute::Quickness, PropertyAttribute::Coordination, 3),
+    'Mace'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Spear'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Staff'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Sword'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Unarmed Combat'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3)
 );
 
 const CREATURE_TYPE = [
@@ -1218,4 +1230,24 @@ const DAMAGE_TYPE = array(
     'Mana'        => 0x200,
     'Nether'      => 0x400,
     'Base'        => 0x10000000
+);
+
+const DAMAGE_TYPE_INT = array(
+    0       => '',
+    1       => 'Slash',
+    2       => 'Pierce',
+    3       => 'Slash/Pierce',
+    4       => 'Bludgeon',
+    5       => 'Slash/Bludgeon',
+    8       => 'Cold',
+    16      => 'Fire',
+    17      => 'Slash/Fire',
+    20      => 'Bludgeon/Fire',
+    32      => 'Acid',
+    50      => 'Pierce/Fire/Acid',
+    64      => 'Electric',
+    256     => 'Stamina',
+    512     => 'Mana',
+    1024    => 'Nether',
+    268435456 => 'Base',
 );

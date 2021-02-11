@@ -2,6 +2,7 @@
     "db": {
         "host": "",
         "user": "",
-        "password": ""
+        "password": "",
+        "version": "v0.9.213"
     }
 }

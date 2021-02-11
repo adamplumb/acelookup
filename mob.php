@@ -73,6 +73,7 @@ $minRGB = 20;
 <head>
     <title>ACE Mob: <?php echo $mob['name']; ?> (<?php echo $mob['id']; ?>)</title>
     <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     
@@ -115,10 +116,11 @@ $minRGB = 20;
 </table>
 
 <br />
-<h3>Effective Physical Armor and possible Body Part Damage</h3>
-<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i>.  The damage values do not account for any generated weapons and only come from creature body parts, so your mileage may vary.  A damage value also does not necessarily mean the creature will use that body part to attack.</p>
+<h3>Effective Physical Armor</h3>
+<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i>.</p>
 
-<table class="horizontal-table">
+<div class="armor-table-container">
+<table class="horizontal-table armor-table">
 <thead>
     <tr>
         <th>Body Part</th>
@@ -129,10 +131,6 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <?php
 }
 ?>
-        <th style="background:transparent;">&nbsp;</th>
-        <th>Body Part</th>
-        <th>Damage Type</th>
-        <th>Amount</th>
     </tr>
 </thead>
 <tbody>
@@ -153,20 +151,11 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         
         $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModVs{$damageType}: {$armorByDamageType[$damageType]['armorMod']}, Resist{$damageType}: {$armorByDamageType[$damageType]['resist']}";
-
-        $damageTypeId = $bodyArmor[$bodyPart]['d_Type'];
-        $damageTypeLabel = getDamageTypeLabel($damageTypeId);
-        $damageValue = $bodyArmor[$bodyPart]['d_Val'];
-        $minDamage = getMinDamage($damageValue, $bodyArmor[$bodyPart]['d_Var']);
 ?>
         <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
 <?php
     }
 ?>
-        <td style="background:transparent;">&nbsp;</td>
-        <td class="strong"><?php echo $bodyPart; ?></td>
-        <td><?php echo $damageValue > 0 ? $damageTypeLabel : ''; ?></td>
-        <td><?php echo $damageValue > 0 ? "${minDamage} - {$damageValue}" : ''; ?></td>
     </tr>
 <?php
     $index++;
@@ -174,11 +163,13 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
 ?>
 </tbody>
 </table>
+</div>
 
 <br />
-<h3>Effective Magical Resistance</h3>
+<h3>Effective Magical Damage</h3>
 <p class="note">This is how much effective magical damage you will do against this monster after innate resistances.  A higher value means you will do more relative damage.  A missing value means the resistance value is missing from the ACE World database, and seems to default to 100%</p>
 
+<div class="magic-damage-container">
 <table class="horizontal-table">
 <thead>
     <tr>
@@ -217,6 +208,7 @@ foreach ($damageTypes as $damageType => $damageProps) {
     </tr>
 </tbody>
 </table>
+</div>
 
 <br />
 <h3>Attributes</h3>
@@ -322,6 +314,37 @@ if ($spellBook) {
 ?>
 
 <br />
+<h3>Attacks from Body Parts</h3>
+<p class="note">If the creature is using body parts to attack, this is what they may use.  If there is "wielded treasure" below then they may use those weapons to attack instead.</p>
+
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>Body Part</th>
+        <th>Damage Type</th>
+        <th>Amount</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+    foreach ($bodyArmor as $bodyPart => $row) {
+        $damageTypeId = $row['d_Type'];
+        $damageTypeLabel = getDamageTypeLabel($damageTypeId);
+        $damageValue = $row['d_Val'];
+        $minDamage = getMinDamage($damageValue, $row['d_Var']);
+?>
+    <tr>
+        <td class="strong"><?php echo $bodyPart; ?></td>
+        <td><?php echo $damageValue > 0 ? $damageTypeLabel : ''; ?></td>
+        <td><?php echo $damageValue > 0 ? "${minDamage} - {$damageValue}" : ''; ?></td>
+    </tr>
+<?php
+    }
+?>
+</tbody>
+</table>
+
+<br />
 <h3>Wielded Treasure / Weapons / Armor</h3>
 <p class="note">This is the probability that a creature will have these wielded items.</p>
 
@@ -378,7 +401,7 @@ if ($wieldedItems) {
 <?php
 if (count($createList) > 0) {
 ?>
-<table class="horizontal-table">
+<table class="horizontal-table drop-items-table">
 <thead>
     <tr>
         <th>ID</th>

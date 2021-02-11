@@ -21,16 +21,16 @@ if ($name) {
                                     weenie.class_Id id,
                                     wps.value name,
                                     weenie.class_Name code,
-                                    wpi.value level
+                                    wpi.value level,
+                                    wpiType.value type
                                 from weenie 
-                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
+                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
                                     left join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id and wpb.type = 19)
-                                    join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id)
+                                    join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id and wpi.type = 25)
+                                    join weenie_properties_int wpiType on (wpiType.object_Id = weenie.class_Id and wpiType.type = 2)
                                 where 
                                     weenie.type = 10
-                                    and wps.type = 1
                                     and (wpb.value = 1 or wpb.value is null)
-                                    and wpi.type = 25
                                     and (wps.value like ? or weenie.class_Name like ?)
                                 order by level asc, id asc");
 
@@ -51,24 +51,30 @@ if ($name) {
 <head>
     <title>ACE Mobs</title>
     <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
 
-<h1>ACE Lookup</h1>
-<form method="GET">
-<input type="input" name="name" value="<?php echo $name; ?>" placeholder="Search" />
-<input type="submit" value="Lookup" />
-</form>
+<div class="lookup-form">
+    <h1>ACE Lookup</h1>
+    <p>Research creature weaknesses, attacks, drop items, and more</p>
+    <form method="GET">
+    <input type="text" name="name" value="<?php echo $name; ?>" placeholder="Search" />
+    <input type="submit" value="Lookup" />
+    </form>
+</div>
 
 <?php
 if ($name) {
 ?>
-<table class="horizontal-table">
+<br />
+<table class="horizontal-table lookup-table" align="center">
 <thead>
     <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Type</th>
         <th>Code</th>
         <th>Level</th>
     </tr>
@@ -82,6 +88,7 @@ if ($name) {
     <tr<?php echo $rowClass; ?>>
         <td><?php echo $row['id']; ?></td>
         <td><a href="mob.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a></td>
+        <td><?php echo CREATURE_TYPE[$row['type']]; ?></td>
         <td><?php echo $row['code']; ?></td>
         <td><?php echo $row['level']; ?></td>
     </tr>
