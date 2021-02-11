@@ -6,6 +6,7 @@ body {
 table th, table td {
     padding: 3px 6px;
     background-color: #efefef;
+    font-size: 10pt;
 }
 
 table.horizontal-table th {
