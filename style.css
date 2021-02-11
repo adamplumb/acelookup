@@ -1,11 +1,10 @@
 body {
     font-family: sans-serif;
-    font-size: 12pt;
+    font-size: 10pt;
 }
 
 table th, table td {
     padding: 3px 6px;
-    font-weight: 12px;
     background-color: #efefef;
 }
 

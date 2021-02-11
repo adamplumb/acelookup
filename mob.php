@@ -332,6 +332,10 @@ if ($spellBook) {
         $damageTypeLabel = getDamageTypeLabel($damageTypeId);
         $damageValue = $row['d_Val'];
         $minDamage = getMinDamage($damageValue, $row['d_Var']);
+        
+        if (!$damageValue) {
+            continue;
+        }
 ?>
     <tr>
         <td class="strong"><?php echo $bodyPart; ?></td>
