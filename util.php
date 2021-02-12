@@ -160,7 +160,7 @@ function getSkills($weenieId, $attributes) {
     $finalSkills = array();
     foreach ($baseSkills as $typeNumber => $value) {
         $skillName = SKILLS_LIST[$typeNumber];
-        $formula = iSKILL_FORMULAS[$skillName];
+        $formula = SKILL_FORMULAS[$skillName];
 
         $add = 0;
         if ($formula) {
