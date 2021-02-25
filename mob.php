@@ -210,6 +210,30 @@ foreach ($damageTypes as $damageType => $damageProps) {
 </table>
 </div>
 
+
+<br />
+<h3>Drain Resistance</h3>
+<p class="note">This shows how effective drains will be against the creature. A lower value means the drain has less effect on the creature, and thus on how much of that vital you receive.</p>
+
+<div class="magic-damage-container">
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>Drain Health</th>
+        <th>Drain Stamina</th>
+        <th>Drain Mana</th>
+    </tr>
+</thead>
+<tbody>
+    <tr class="alt">
+        <td><?php echo round($floats[PropertyFloat::ResistHealthDrain] * 100, 2); ?>%</td>
+        <td><?php echo round($floats[PropertyFloat::ResistStaminaDrain] * 100, 2); ?>%</td>
+        <td><?php echo round($floats[PropertyFloat::ResistManaDrain] * 100, 2); ?>%</td>
+    </tr>
+</tbody>
+</table>
+</div>
+
 <br />
 <h3>Attributes</h3>
 <table class="vertical-table">
@@ -425,7 +449,7 @@ if (count($createList) > 0) {
         <td><?php echo $row['id']; ?></td>
         <td><?php echo $row['name']; ?></td>
         <td><?php echo $row['code']; ?></td>
-        <td><?php echo round(100 * $row['chance']); ?>%</td>
+        <td><?php echo round(100 * $row['chance'], 1); ?>%</td>
         <td>
             <a href="http://acpedia.org/<?php echo $row['name']; ?>" target="acpedia">ACPedia</a>
             /
