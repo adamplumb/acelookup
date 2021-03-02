@@ -19,6 +19,7 @@ if (!$mob) {
 $bodyArmor = getBodyArmor($classId);
 $floats = getFloats($classId);
 $ints = getInts($classId);
+$bools = getBools($classId);
 $attributes = getAttributes($classId);
 $attributes2nd = getAttributes2nd($classId);
 $skills = getSkills($classId, $attributes);
@@ -60,7 +61,7 @@ $damageTypes = array(
     )
 );
 
-
+$specialProperties = getSpecialProperties($floats, $ints, $bools);
 $effectiveArmor = getEffectiveArmor($bodyArmor, $damageTypes, $floats);
 $magicResistances = getMagicResistances($damageTypes, $floats);
 
@@ -233,6 +234,42 @@ foreach ($damageTypes as $damageType => $damageProps) {
 </tbody>
 </table>
 </div>
+
+<?php
+if ($specialProperties) {
+?>
+<br />
+<h3>Special Properties</h3>
+<p class="note">These properties being present means there is something noteworthy about this creature you should pay attention to.</p>
+
+<div class="magic-damage-container">
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>Property</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+    foreach ($specialProperties as $prop) {
+?>
+    <tr class="alt">
+        <td><b><?php echo $prop['name']; ?></b></td>
+        <td><?php echo isset($prop['value']) ? round($prop['value'] * 100, 2) . '%' : '' ?></td>
+        <td><?php echo $prop['description']; ?></td>
+    </tr>
+<?php
+    }
+?>
+</tbody>
+</table>
+</div>
+<?php
+}
+?>
+
 
 <br />
 <h3>Attributes</h3>

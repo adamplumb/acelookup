@@ -352,26 +352,26 @@ function percentageBetween($x, $a, $b) {
     return round(($x - $a) / ($b - $a), 2);
 }
 
-function getSpecialProperties($floats, $ints, $bools) {
-    $properties = array();
+function getSpecialFlags($floats, $ints, $bools) {
+    $flags = array();
 
-    if (isset($bools[PropertyBool::IgnoreMagicResist])) {
-        $properties[] = array('name' => 'Ignores Life Protections', 'description' => 'Creature damage ignores your life protections');
+    if ($bools[PropertyBool::IgnoreMagicResist]) {
+        $flags[] = array('name' => 'Ignore Magic Armor', 'description' => 'Creature damage ignores your life protections');
     }
 
-    if (isset($bools[PropertyBool::IgnoreMagicArmor])) {
-        $properties[] = array('name' => 'Ignores Magic Banes', 'description' => 'Creature damage ignores your item banes');
+    if ($bools[PropertyBool::IgnoreMagicArmor]) {
+        $flags[] = array('name' => 'Ignore Magic Banes', 'description' => 'Creature damage ignores your item banes');
     }
     
-    if (isset($floats[PropertyFloat::IgnoreShield])) {
-        $properties[] = array(
+    if ($floats[PropertyFloat::IgnoreShield]) {
+        $flags[] = array(
             'name'          => 'Ignore Shield', 
             'value'         => $floats[PropertyFloat::IgnoreShield], 
-            'description'   => "This creature's attacks ignore your shield armor by some percentage.  Effective AL is reduced by that amount."
+            'description'   => 'The creatures attacks ignore your shield armor by some amount.'
         );
     }
     
-    return $properties;
+    return $flags;
 }
 
 class PropertyFloat {
@@ -1055,6 +1055,8 @@ class WeenieType {
     const CombatPet = 70;
 }
 
+<<<<<<< Updated upstream
+=======
 class PropertyBool {
     const Undef                            = 0;
     const Stuck                            = 1;
@@ -1272,6 +1274,7 @@ const WEENIE_TYPE = [
     'CombatPet'
 ];
 
+>>>>>>> Stashed changes
 const SKILLS_LIST = [
     'None',
     'Axe',                 /* Retired */
