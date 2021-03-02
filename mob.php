@@ -235,42 +235,6 @@ foreach ($damageTypes as $damageType => $damageProps) {
 </table>
 </div>
 
-<?php
-if ($specialProperties) {
-?>
-<br />
-<h3>Special Properties</h3>
-<p class="note">These properties being present means there is something noteworthy about this creature you should pay attention to.</p>
-
-<div class="magic-damage-container">
-<table class="horizontal-table">
-<thead>
-    <tr>
-        <th>Property</th>
-        <th>Value</th>
-        <th>Description</th>
-    </tr>
-</thead>
-<tbody>
-<?php
-    foreach ($specialProperties as $prop) {
-?>
-    <tr class="alt">
-        <td><b><?php echo $prop['name']; ?></b></td>
-        <td><?php echo isset($prop['value']) ? round($prop['value'] * 100, 2) . '%' : '' ?></td>
-        <td><?php echo $prop['description']; ?></td>
-    </tr>
-<?php
-    }
-?>
-</tbody>
-</table>
-</div>
-<?php
-}
-?>
-
-
 <br />
 <h3>Attributes</h3>
 <table class="vertical-table">
@@ -408,6 +372,40 @@ if ($spellBook) {
 ?>
 </tbody>
 </table>
+
+
+<?php
+if ($specialProperties) {
+?>
+<br />
+<h3>Special Properties</h3>
+<p class="note">These properties being present means there is something noteworthy about this creature you should pay attention to.</p>
+
+<div class="magic-damage-container">
+<table class="horizontal-table">
+<thead>
+    <tr>
+        <th>Property</th>
+        <th>Description</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+    foreach ($specialProperties as $prop) {
+?>
+    <tr class="alt">
+        <td><b><?php echo $prop['name']; ?></b></td>
+        <td><?php echo $prop['description']; ?></td>
+    </tr>
+<?php
+    }
+?>
+</tbody>
+</table>
+</div>
+<?php
+}
+?>
 
 <br />
 <h3>Wielded Treasure / Weapons / Armor</h3>

@@ -356,18 +356,32 @@ function getSpecialProperties($floats, $ints, $bools) {
     $properties = array();
 
     if (isset($bools[PropertyBool::IgnoreMagicResist])) {
-        $properties[] = array('name' => 'Ignores Life Protections', 'description' => 'Creature damage ignores your life protections');
+        $properties[] = array(
+            'name'          => 'Ignores Life Protections', 
+            'description'   => 'Creature damage fully ignores your life protections'
+        );
     }
 
     if (isset($bools[PropertyBool::IgnoreMagicArmor])) {
-        $properties[] = array('name' => 'Ignores Magic Banes', 'description' => 'Creature damage ignores your item banes');
-    }
-    
-    if (isset($floats[PropertyFloat::IgnoreShield])) {
         $properties[] = array(
-            'name'          => 'Ignore Shield', 
-            'value'         => $floats[PropertyFloat::IgnoreShield], 
-            'description'   => "This creature's attacks ignore your shield armor by some percentage.  Effective AL is reduced by that amount."
+            'name'          => 'Ignores Magic Banes', 
+            'description'   => 'Creature damage fully ignores your armor banes'
+        );
+    }
+    /*
+    if (isset($floats[PropertyFloat::IgnoreArmor])) {
+        $effectiveAL = 100 - (100 * $floats[PropertyFloat::IgnoreArmor]);
+        $properties[] = array(
+            'name'          => 'Ignores Armor (Rending)', 
+            'description'   => "Your overall armor level is effectively <b>{$effectiveAL}%</b> of its normal value."
+        );
+    }
+    */
+    if (isset($floats[PropertyFloat::IgnoreShield])) {
+        $effectiveAL = 100 - (100 * $floats[PropertyFloat::IgnoreShield]);
+        $properties[] = array(
+            'name'          => 'Ignores Shield', 
+            'description'   => "Your shield armor level is effectively <b>{$effectiveAL}%</b> of its normal value."
         );
     }
     
