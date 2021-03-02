@@ -376,15 +376,13 @@ function getSpecialProperties($floats, $ints, $bools) {
         );
     }
 
-    /*
     if (isset($floats[PropertyFloat::IgnoreArmor])) {
-        $effectiveAL = 100 - (100 * $floats[PropertyFloat::IgnoreArmor]);
         $properties[] = array(
-            'name'          => 'Ignores Armor (Rending)', 
-            'description'   => "Your overall armor level is effectively <b>{$effectiveAL}%</b> of its normal value."
+            'name'          => 'Ignores Physical Armor', 
+            'description'   => "Your effective armor level is reduced roughly 10% - 50% depending on the creature."
         );
     }
-    */
+
     if (isset($floats[PropertyFloat::IgnoreShield])) {
         $effectiveAL = 100 - (100 * $floats[PropertyFloat::IgnoreShield]);
         $properties[] = array(
