@@ -333,7 +333,7 @@ if ($spellBook) {
 <?php
 } else {
 ?>
-    <p><i>No spells found</i></p>
+    <p class="no-item-note"><i>No spells found</i></p>
 <?php    
 }
 ?>
@@ -373,12 +373,11 @@ if ($spellBook) {
 </tbody>
 </table>
 
-
+<br />
+<h3>Special Properties</h3>
 <?php
 if ($specialProperties) {
 ?>
-<br />
-<h3>Special Properties</h3>
 <p class="note">These properties being present means there is something noteworthy about this creature you should pay attention to.</p>
 
 <div class="magic-damage-container">
@@ -404,8 +403,13 @@ if ($specialProperties) {
 </table>
 </div>
 <?php
+} else {
+?>
+    <p class="no-item-note"><i>No special properties found</i></p>
+<?php    
 }
 ?>
+
 
 <br />
 <h3>Wielded Treasure / Weapons / Armor</h3>
@@ -451,7 +455,7 @@ if ($wieldedItems) {
 <?php
 } else {
 ?>
-    <p><i>No wielded items found</i></p>
+    <p class="no-item-note"><i>No wielded items found</i></p>
 <?php    
 }
 ?>
@@ -500,10 +504,9 @@ if (count($createList) > 0) {
 <?php
 } else {
 ?>
-    <p><i>No drop items found</i></p>
+    <p> class="no-item-note"<i>No drop items found</i></p>
 <?php    
 }
-
 ?>
 
 <?php

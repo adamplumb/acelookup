@@ -42,6 +42,11 @@ input[type="submit"] {
     padding: 3px 12px 4px 12px;
 }
 
+p.no-item-note {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
 div.footer {
     display: block;
     text-align: center;
