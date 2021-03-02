@@ -379,7 +379,7 @@ function getSpecialProperties($floats, $ints, $bools) {
     if (isset($floats[PropertyFloat::IgnoreArmor])) {
         $properties[] = array(
             'name'          => 'Ignores Physical Armor', 
-            'description'   => "Your effective armor level is reduced roughly 10% - 50% depending on the creature."
+            'description'   => "Your effective physical armor level is reduced roughly 10% - 50% depending on the creature."
         );
     }
 
