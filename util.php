@@ -368,6 +368,14 @@ function getSpecialProperties($floats, $ints, $bools) {
             'description'   => 'Creature damage fully ignores your armor banes'
         );
     }
+
+    if (isset($bools[PropertyBool::NonProjectileMagicImmune])) {
+        $properties[] = array(
+            'name'          => 'Immune to Debuffs', 
+            'description'   => 'All creature and life debuffs will fail'
+        );
+    }
+
     /*
     if (isset($floats[PropertyFloat::IgnoreArmor])) {
         $effectiveAL = 100 - (100 * $floats[PropertyFloat::IgnoreArmor]);
