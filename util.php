@@ -205,9 +205,13 @@ function getKeyValues($propertyType, $weenieId, $keyColumn, $valueColumn) {
 
 
 function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
+    $average = array();
+
+    $count = 0;
     foreach ($bodyArmor as $bodyPart => $bodyPartArmor) {
         $effectiveArmor[$bodyPart] = array();
 
+        $totalForDamageType = 0;
         foreach ($damageTypes as $damageType => $damageProps) {
             $armorModProp = $damageProps['ArmorModProperty'];
             $resistModProp = $damageProps['ResistProperty'];
@@ -228,10 +232,42 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
                 'resist'        => $resistVsDamageType,
                 'calculated'    => $calculated
             );
+            
+            if (!isset($average[$damageType])) {
+                $average[$damageType] = array(
+                    'baseArmor' => 0,
+                    'armorMod'  => 0,
+                    'resist'    => 0,
+                    'calculated'=> 0
+                );
+            }
+
+            $average[$damageType]['baseArmor'] += $baseArmor;
+            $average[$damageType]['armorMod'] += $armorModVsDamageType;
+            $average[$damageType]['resist'] += $resistVsDamageType;
+            $average[$damageType]['calculated'] += $calculated;
+            
+            $totalForDamageType += $baseArmor;
+        }
+        
+        if ($totalForDamageType > 0) {
+            $count++;
+        } else {
+            unset($effectiveArmor[$bodyPart]);
         }
     }
     
-    return $effectiveArmor;
+    foreach ($average as $damageType => $stats) {
+        $average[$damageType]['baseArmor'] = $stats['baseArmor'] / $count;
+        $average[$damageType]['armorMod'] = $stats['armorMod'] / $count;
+        $average[$damageType]['resist'] = $stats['resist'] / $count;
+        $average[$damageType]['calculated'] = round($stats['calculated'] / $count);
+    }
+
+    return array(
+        'bodyParts' => $effectiveArmor,
+        'average'   => array('Average' => $average)
+    );
 }
 
 function getMagicResistances($damageTypes, $floats) {

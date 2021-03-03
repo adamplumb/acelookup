@@ -138,17 +138,17 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <tbody>
 <?php
 
-$armorRange = getArmorRange($effectiveArmor, 'calculated');
+$armorRange = getArmorRange($effectiveArmor['bodyParts'], 'calculated');
+$averageArmorRange = getArmorRange($effectiveArmor['average'], 'calculated');
 $index = 0;
-foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
+foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
 ?>
     <tr class="alt">
-        <td class="strong"><?php echo $bodyPart; ?></td>
+        <td width="100" class="strong"><?php echo $bodyPart; ?></td>
 <?php
     foreach ($damageTypes as $damageType => $damageProps) {
         $val = $armorByDamageType[$damageType]['calculated'];
-        $percentBetween = percentageBetween($val, $armorRange['min'], $armorRange['max']);
-        
+        $percentBetween = percentageBetween($val, $armorRange['min'], $armorRange['max']);        
         $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         
@@ -163,6 +163,36 @@ foreach ($effectiveArmor as $bodyPart => $armorByDamageType) {
     $index++;
 }
 ?>
+</tbody>
+<thead>
+    <tr>
+        <th width="100">&nbsp;</th>
+<?php
+foreach ($damageTypes as $damageType => $damageProps) {
+?>
+        <th><?php echo $damageType; ?></th>
+<?php
+}
+?>
+    </tr>
+</thead>
+<tbody>
+    <tr class="alt">
+        <td class="strong">Average</td>
+<?php
+    foreach ($damageTypes as $damageType => $damageProps) {
+        $armor = $effectiveArmor['average']['Average'][$damageType];
+        $val = $armor['calculated'];
+        $percentBetween = percentageBetween($val, $averageArmorRange['min'], $averageArmorRange['max']);        
+        $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
+        $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
+        $title = "Base: {$armor['baseArmor']}, ArmorModVs{$damageType}: {$armor['armorMod']}, Resist{$damageType}: {$armor['resist']}";
+?>
+        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
+<?php
+    }
+?>
+    </tr>
 </tbody>
 </table>
 </div>
