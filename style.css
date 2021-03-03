@@ -29,6 +29,10 @@ table tr.alt td {
     background-color: #d9d9d9;
 }
 
+.transparent {
+    background: transparent;
+}
+
 .lookup-form {
     padding-top: 50px;
     text-align: center;

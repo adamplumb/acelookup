@@ -394,6 +394,15 @@ function getSpecialProperties($floats, $ints, $bools) {
     return $properties;
 }
 
+function getRegenRates($floats) {
+    $rates = array();
+    $rates['health'] = round($floats[PropertyFloat::HealthRate] / 5, 1);
+    $rates['stamina'] = round($floats[PropertyFloat::StaminaRate] / 5, 1);
+    $rates['mana'] = round($floats[PropertyFloat::ManaRate] / 5, 1);
+    
+    return $rates;
+}
+
 class PropertyFloat {
     // properties marked as ServerOnly are properties we never saw in PCAPs, from here:
     // http://ac.yotesfan.com/ace_object/not_used_enums.php

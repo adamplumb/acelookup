@@ -64,6 +64,7 @@ $damageTypes = array(
 $specialProperties = getSpecialProperties($floats, $ints, $bools);
 $effectiveArmor = getEffectiveArmor($bodyArmor, $damageTypes, $floats);
 $magicResistances = getMagicResistances($damageTypes, $floats);
+$regenRates = getRegenRates($floats);
 
 $maxRGB = 200;
 $minRGB = 20;
@@ -242,38 +243,56 @@ foreach ($damageTypes as $damageType => $damageProps) {
     <tr>
         <th>Strength</th>
         <td><?php echo $attributes[PropertyAttribute::Strength]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr>
         <th>Endurance</th>
         <td><?php echo $attributes[PropertyAttribute::Endurance]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr>
         <th>Coordination</th>
         <td><?php echo $attributes[PropertyAttribute::Coordination]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr>
         <th>Quickness</th>
         <td><?php echo $attributes[PropertyAttribute::Quickness]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr>
         <th>Focus</th>
         <td><?php echo $attributes[PropertyAttribute::Focus]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr>
         <th>Self</th>
         <td><?php echo $attributes[PropertyAttribute::Self]; ?></td>
+        <td class="transparent">&nbsp;</td>
+        <td class="transparent">&nbsp;</td>
     </tr>
     <tr class="alt-darker">
         <th>Health</th>
         <td><?php echo $attributes2nd[PropertyAttribute2nd::MaxHealth]; ?></td>
+        <th>Regen/sec</th>
+        <td><?php echo $regenRates['health']; ?></td>
     </tr>
     <tr class="alt-darker">
         <th>Stamina</th>
         <td><?php echo $attributes2nd[PropertyAttribute2nd::MaxStamina]; ?></td>
+        <th>Regen/sec</th>
+        <td><?php echo $regenRates['stamina']; ?></td>
     </tr>
     <tr class="alt-darker">
         <th>Mana</th>
         <td><?php echo $attributes2nd[PropertyAttribute2nd::MaxMana]; ?></td>
+        <th>Regen/sec</th>
+        <td><?php echo $regenRates['mana']; ?></td>
     </tr>
 </tbody>
 </table>
