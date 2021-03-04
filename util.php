@@ -223,7 +223,8 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             if ($resistVsDamageType == 0) {
                 $calculated = 'INF';
             } else {
-                $calculated = round(($baseArmor * $armorModVsDamageType) / $resistVsDamageType);
+                $armorMod = getArmorMod($baseArmor * $armorModVsDamageType);
+                $calculated = round(100 * $armorMod * $resistVsDamageType);
             }
 
             $effectiveArmor[$bodyPart][$damageType] = array(
@@ -245,7 +246,12 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             $average[$damageType]['baseArmor'] += $baseArmor;
             $average[$damageType]['armorMod'] += $armorModVsDamageType;
             $average[$damageType]['resist'] += $resistVsDamageType;
-            $average[$damageType]['calculated'] += $calculated;
+            
+            if ($calculated == 'INF') {
+                $average[$damageType]['calculated'] = 'INF';
+            } else {
+                $average[$damageType]['calculated'] += $calculated;
+            }
             
             $totalForDamageType += $baseArmor;
         }
@@ -258,10 +264,13 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
     }
     
     foreach ($average as $damageType => $stats) {
-        $average[$damageType]['baseArmor'] = $stats['baseArmor'] / $count;
-        $average[$damageType]['armorMod'] = $stats['armorMod'] / $count;
-        $average[$damageType]['resist'] = $stats['resist'] / $count;
-        $average[$damageType]['calculated'] = round($stats['calculated'] / $count);
+        $average[$damageType]['baseArmor'] = round($stats['baseArmor'] / $count, 2);
+        $average[$damageType]['armorMod'] = round($stats['armorMod'] / $count, 2);
+        $average[$damageType]['resist'] = round($stats['resist'] / $count, 2);
+        
+        if ($stats['calculated'] != 'INF') {
+            $average[$damageType]['calculated'] = round($stats['calculated'] / $count);
+        }
     }
 
     return array(
@@ -310,6 +319,10 @@ function getArmorRange($effectiveArmor, $key) {
         'min' => $min,
         'max' => $max
     );
+}
+
+function getArmorMod($armorLevel) {
+    return 66.67 / ($armorLevel + 66.67);
 }
 
 function getWieldedItems($weenieId) {

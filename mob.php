@@ -118,8 +118,8 @@ $minRGB = 20;
 </table>
 
 <br />
-<h3>Effective Physical Armor</h3>
-<p class="note">The lower the value, the weaker to that damage type.  The formula used here is <i>BaseArmor * ArmorModVsType / ResistModByType</i>.</p>
+<h3>Physical Armor Damage Reduction</h3>
+<p class="note">The creature's physical armor reduces your damage by this amount depending on the body part and damage type.  The formula used here is <i>ArmorMod * ResistModByType</i> where <i>ArmorMod = 66.67 / 66.67 + (BaseArmor * ArmorModVsType)</i>.  For example, if you do 100 damage before mitigation, and damage reduction is 17%, then you will end up doing 17 damage.  This doesn't include your attack weapon or damage and damage is reduced further if the creature is wielding a shield.  A value over 100% means damage of that type is increased.</p>
 
 <div class="armor-table-container">
 <table class="horizontal-table armor-table">
@@ -148,13 +148,13 @@ foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
 <?php
     foreach ($damageTypes as $damageType => $damageProps) {
         $val = $armorByDamageType[$damageType]['calculated'];
-        $percentBetween = percentageBetween($val, $armorRange['min'], $armorRange['max']);        
+        $percentBetween = percentageBetween($val, $armorRange['max'], $armorRange['min']);        
         $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         
         $title = "Base: {$armorByDamageType[$damageType]['baseArmor']}, ArmorModVs{$damageType}: {$armorByDamageType[$damageType]['armorMod']}, Resist{$damageType}: {$armorByDamageType[$damageType]['resist']}";
 ?>
-        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
+        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?>%</td>
 <?php
     }
 ?>
@@ -183,12 +183,12 @@ foreach ($damageTypes as $damageType => $damageProps) {
     foreach ($damageTypes as $damageType => $damageProps) {
         $armor = $effectiveArmor['average']['Average'][$damageType];
         $val = $armor['calculated'];
-        $percentBetween = percentageBetween($val, $averageArmorRange['min'], $averageArmorRange['max']);        
+        $percentBetween = percentageBetween($val, $averageArmorRange['max'], $averageArmorRange['min']);        
         $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
         $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
         $title = "Base: {$armor['baseArmor']}, ArmorModVs{$damageType}: {$armor['armorMod']}, Resist{$damageType}: {$armor['resist']}";
 ?>
-        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?></td>
+        <td style="background-color: <?php echo $rgbLabel; ?>" title="<?php echo $title; ?>"><?php echo $val; ?>%</td>
 <?php
     }
 ?>
