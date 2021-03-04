@@ -1,26 +1,31 @@
 Changelog
 =========
 
-2020-03-02
+2021-03-03
+ - Updated physical armor table with effective damage reduction
+ - Updated formula to include actual ArmorMod equation from ACE
+ - Added average damage reduction
+
+2021-03-02
  - Added special properties like IgnoreShield/IgnoreMagicResist/IgnoreMagicArmor
 
-2020-02-24
+2021-02-24
  - Added effective drain resistances
 
-2020-02-11
+2021-02-11
  - Added cow weenie types to lookup
  - Added more skill formulas
  - Look and feel improvements for mobile
  
-2020-02-09
+2021-02-09
  - Added wielded treasure items
  - Added body part damage
  - Added spell book
  
-2020-02-04
+2021-02-04
  - Add color coding to Effective AL table
  - Add magic resistances table
  - Redirect to mob page from lookup page if there is single result
  
-2020-01-24
+2021-01-24
  - Initial release
