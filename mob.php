@@ -108,6 +108,10 @@ $minRGB = 20;
     <td><?php echo $mob['level']; ?></td>
 </tr>
 <tr>
+    <th>XP</th>
+    <td><?php echo $ints[PropertyInt::XpOverride]; ?></td>
+</tr>
+<tr>
     <th>Links</th>
     <td>
             <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $mob['name']); ?>" target="acpedia">ACPedia</a>

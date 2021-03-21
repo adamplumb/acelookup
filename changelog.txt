@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2021-03-20
+- Add Creature XP
+
 2021-03-03
  - Updated physical armor table with effective damage reduction
  - Updated formula to include actual ArmorMod equation from ACE
