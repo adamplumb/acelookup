@@ -256,7 +256,7 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             $totalForDamageType += $baseArmor;
         }
         
-        if ($totalForDamageType > 0) {
+        if ($totalForDamageType != 0) {
             $count++;
         } else {
             unset($effectiveArmor[$bodyPart]);
