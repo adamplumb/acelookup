@@ -20,6 +20,7 @@ $bodyArmor = getBodyArmor($classId);
 $floats = getFloats($classId);
 $ints = getInts($classId);
 $bools = getBools($classId);
+$dataIds = getDataIds($classId);
 $attributes = getAttributes($classId);
 $attributes2nd = getAttributes2nd($classId);
 $skills = getSkills($classId, $attributes);
@@ -69,6 +70,8 @@ $regenRates = getRegenRates($floats);
 $maxRGB = 200;
 $minRGB = 20;
 
+$treasureDeath = getTreasureDeath($dataIds[PropertyDataId::DeathTreasureType]);
+
 ?>
 
 <html>
@@ -106,6 +109,10 @@ $minRGB = 20;
 <tr>
     <th>Level</th>
     <td><?php echo $mob['level']; ?></td>
+</tr>
+<tr>
+    <th>Tier</th>
+    <td><?php echo $treasureDeath['tier']; ?></td>
 </tr>
 <tr>
     <th>XP</th>

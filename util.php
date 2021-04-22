@@ -130,6 +130,10 @@ function getBools($weenieId) {
     return getKeyValues('bool', $weenieId, 'type', 'value');
 }
 
+function getDataIds($weenieId) {
+    return getKeyValues('d_i_d', $weenieId, 'type', 'value');
+}
+
 function getSpellBook($weenieId) {
     global $dbh;
 
@@ -450,6 +454,17 @@ function getRegenRates($floats) {
     $rates['mana'] = round($floats[PropertyFloat::ManaRate] / 5, 1);
     
     return $rates;
+}
+
+function getTreasureDeath($treasureType) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select * from treasure_death
+                                        where treasure_Type = ?");
+    $statement->execute(array($treasureType));
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    
+    return $row;
 }
 
 class PropertyFloat {
@@ -1276,6 +1291,89 @@ class PropertyBool {
     const SkillTemplesTimerReset           = 9009;
 };
 
+class PropertyDataId {
+    const Undef                      = 0;
+    const Setup                      = 1;
+    const MotionTable                = 2;
+    const SoundTable                 = 3;
+    const CombatTable                = 4;
+    const QualityFilter              = 5;
+    const PaletteBase                = 6;
+    const ClothingBase               = 7;
+    const Icon                       = 8;
+    const EyesTexture                = 9;
+    const NoseTexture                = 10;
+    const MouthTexture               = 11;
+    const DefaultEyesTexture         = 12;
+    const DefaultNoseTexture         = 13;
+    const DefaultMouthTexture        = 14;
+    const HairPalette                = 15;
+    const EyesPalette                = 16;
+    const SkinPalette                = 17;
+    const HeadObject                 = 18;
+    const ActivationAnimation        = 19;
+    const InitMotion                 = 20;
+    const ActivationSound            = 21;
+    const PhysicsEffectTable         = 22;
+    const UseSound                   = 23;
+    const UseTargetAnimation         = 24;
+    const UseTargetSuccessAnimation  = 25;
+    const UseTargetFailureAnimation  = 26;
+    const UseUserAnimation           = 27;
+    const Spell                      = 28;
+    const SpellComponent             = 29;
+    const PhysicsScript              = 30;
+    const LinkedPortalOne            = 31;
+    const WieldedTreasureType        = 32;
+    const UnknownGuessedname         = 33;
+    const UnknownGuessedname2        = 34;
+    const DeathTreasureType          = 35;
+    const MutateFilter               = 36;
+    const ItemSkillLimit             = 37;
+    const UseCreateItem              = 38;
+    const DeathSpell                 = 39;
+    const VendorsClassId             = 40;
+    const ItemSpecializedOnly        = 41;
+    const HouseId                    = 42;
+    const AccountHouseId             = 43;
+    const RestrictionEffect          = 44;
+    const CreationMutationFilter     = 45;
+    const TsysMutationFilter         = 46;
+    const LastPortal                 = 47;
+    const LinkedPortalTwo            = 48;
+    const OriginalPortal             = 49;
+    const IconOverlay                = 50;
+    const IconOverlaySecondary       = 51;
+    const IconUnderlay               = 52;
+    const AugmentationMutationFilter = 53;
+    const AugmentationEffect         = 54;
+    const ProcSpell                  = 55;
+    const AugmentationCreateItem     = 56;
+    const AlternateCurrency          = 57;
+    const BlueSurgeSpell             = 58;
+    const YellowSurgeSpell           = 59;
+    const RedSurgeSpell              = 60;
+    const OlthoiDeathTreasureType    = 61;
+    const PCAPRecordedWeenieHeader         = 8001;
+    const PCAPRecordedWeenieHeader2        = 8002;
+    const PCAPRecordedObjectDesc           = 8003;
+    const PCAPRecordedPhysicsDesc          = 8005;
+    const PCAPRecordedParentLocation       = 8009;
+    const PCAPRecordedDefaultScript        = 8019;
+    const PCAPRecordedTimestamp0           = 8020;
+    const PCAPRecordedTimestamp1           = 8021;
+    const PCAPRecordedTimestamp2           = 8022;
+    const PCAPRecordedTimestamp3           = 8023;
+    const PCAPRecordedTimestamp4           = 8024;
+    const PCAPRecordedTimestamp5           = 8025;
+    const PCAPRecordedTimestamp6           = 8026;
+    const PCAPRecordedTimestamp7           = 8027;
+    const PCAPRecordedTimestamp8           = 8028;
+    const PCAPRecordedTimestamp9           = 8029;
+    const PCAPRecordedMaxVelocityEstimated = 8030;
+    const PCAPPhysicsDIDDataTemplatedFrom  = 8044;
+}
+
 const WEENIE_TYPE = [
     'Undef',
     'Generic',
@@ -1592,3 +1690,116 @@ const DAMAGE_TYPE_INT = array(
     1024    => 'Nether',
     268435456 => 'Base',
 );
+
+const MATERIALS = [
+    "Unknown",
+    "Ceramic",
+    "Porcelain",
+    "Cloth",
+    "Linen",
+    "Satin",
+    "Silk",
+    "Velvet",
+    "Wool",
+    "Gem",
+    "Agate",
+    "Amber",
+    "Amethyst",
+    "Aquamarine",
+    "Azurite",
+    "BlackGarnet",
+    "BlackOpal",
+    "Bloodstone",
+    "Carnelian",
+    "Citrine",
+    "Diamond",
+    "Emerald",
+    "FireOpal",
+    "GreenGarnet",
+    "GreenJade",
+    "Hematite",
+    "ImperialTopaz",
+    "Jet",
+    "LapisLazuli",
+    "LavenderJade",
+    "Malachite",
+    "Moonstone",
+    "Onyx",
+    "Opal",
+    "Peridot",
+    "RedGarnet",
+    "RedJade",
+    "RoseQuartz",
+    "Ruby",
+    "Sapphire",
+    "SmokeyQuartz",
+    "Sunstone",
+    "TigerEye",
+    "Tourmaline",
+    "Turquoise",
+    "WhiteJade",
+    "WhiteQuartz",
+    "WhiteSapphire",
+    "YellowGarnet",
+    "YellowTopaz",
+    "Zircon",
+    "Ivory",
+    "Leather",
+    "ArmoredilloHide",
+    "GromnieHide",
+    "ReedSharkHide",
+    "Metal",
+    "Brass",
+    "Bronze",
+    "Copper",
+    "Gold",
+    "Iron",
+    "Pyreal",
+    "Silver",
+    "Steel",
+    "Stone",
+    "Alabaster",
+    "Granite",
+    "Marble",
+    "Obsidian",
+    "Sandstone",
+    "Serpentine",
+    "Wood",
+    "Ebony",
+    "Mahogany",
+    "Oak",
+    "Pine",
+    "Teak"
+];
+
+class TreasureItemType {
+    const Undef = 0;
+    const Gem = 1;
+    const Armor = 2;
+    const Clothing = 3;
+    const Cloak = 4;
+    const Weapon = 5;
+    const Jewelry = 6;
+    const Dinnerware = 7;
+}
+
+// Found here: https://github.com/ACEmulator/ACE/blob/a653c84fb4c7d569dffb2bbe22455f29c52c2354/Source/ACE.Server/Factories/Tables/TreasureItemTypeChances.cs#L6
+// Accurate in ACE as of April 18 2021
+const DefaultMagicalChanceTable = [
+    array('itemType' => TreasureItemType::Gem, 'probability' => 0.14),
+    array('itemType' => TreasureItemType::Armor, 'probability' => 0.24),
+    array('itemType' => TreasureItemType::Weapon, 'probability' => 0.30),
+    array('itemType' => TreasureItemType::Clothing, 'probability' => 0.13),
+    array('itemType' => TreasureItemType::Cloak, 'probability' => 0.01),
+    array('itemType' => TreasureItemType::Jewelry, 'probability' => 0.18)
+];
+
+const DefaultNonMagicalChanceTable = [
+    array('itemType' => TreasureItemType::Gem, 'probability' => 0.14),
+    array('itemType' => TreasureItemType::Armor, 'probability' => 0.24),
+    array('itemType' => TreasureItemType::Weapon, 'probability' => 0.30),
+    array('itemType' => TreasureItemType::Clothing, 'probability' => 0.13),
+    array('itemType' => TreasureItemType::Cloak, 'probability' => 0.01),
+    array('itemType' => TreasureItemType::Jewelry, 'probability' => 0.10),
+    array('itemType' => TreasureItemType::Dinnerware, 'probability' => 0.08)
+];
