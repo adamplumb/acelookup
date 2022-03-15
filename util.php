@@ -34,6 +34,26 @@ function getCreature($weenieId) {
     return $mob;
 }
 
+function getCraftingItem($weenieId) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select 
+                                        weenie.class_Id id,
+                                        wps.value name,
+                                        weenie.type type,
+                                        weenie.class_Name code
+                                    from weenie 
+                                        join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
+                                    where
+                                        weenie.type in (" . implode(', ', CRAFTING_TYPES) . ")
+                                        and (wps.type = 1 and weenie.class_Id = ?)");
+
+    $statement->execute(array($weenieId));
+    $item = $statement->fetch(PDO::FETCH_ASSOC);
+    
+    return $item;
+}
+
 function getCreateList($weenieId) {
     global $dbh;
 
@@ -52,6 +72,35 @@ function getCreateList($weenieId) {
                                 order by shade desc, name asc");
 
     $statement->execute(array($weenieId));
+    $rows = array();
+    
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $rows[] = $row;
+    }
+    
+    return $rows;
+}
+
+function getCreaturesThatDropItem($treasureWeenieId) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select
+                                    wpcl.object_Id id,
+                                    wpcl.shade chance,
+                                    weenie.class_Name code,
+                                    wps.value name,
+                                    wpi.value type
+                                from weenie_properties_create_list wpcl
+                                left join weenie_properties_string wps on (wps.object_Id = wpcl.object_Id)
+                                left join weenie on (weenie.class_Id = wpcl.object_Id)
+                                left join weenie_properties_int wpi on (wpi.object_id = wpcl.object_Id)
+                                where 
+                                    wpcl.weenie_Class_Id = ?
+                                    and (wps.type = 1 or wps.type is null)
+                                    and (wpi.type = 2 or wpi.type is null)
+                                order by shade desc, name asc");
+
+    $statement->execute(array($treasureWeenieId));
     $rows = array();
     
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
@@ -124,6 +173,10 @@ function getAttributes2nd($weenieId) {
 
 function getInts($weenieId) {
     return getKeyValues('int', $weenieId, 'type', 'value');
+}
+
+function getStrings($weenieId) {
+    return getKeyValues('string', $weenieId, 'type', 'value');
 }
 
 function getBools($weenieId) {
@@ -466,6 +519,205 @@ function getTreasureDeath($treasureType) {
     
     return $row;
 }
+
+// usage is source, target, success, fail
+function getRecipesByWeenieId($usage, $id) {
+    global $dbh;
+    
+    if ($usage == 'source' || $usage == 'target') {
+        $column = "`cook_book`.`${usage}_W_C_I_D`";
+        
+    } else if ($usage == 'success' || $usage == 'fail') {
+        $column = "`recipe`.`${usage}_W_C_I_D`";
+    } else {
+        throw new Error("Invalid usage: ${usage}");
+    }
+
+    $statement = $dbh->prepare("select 
+                                    cook_book.id cookBookId,
+                                    cook_book.source_W_C_I_D sourceWeenieId,
+                                    wpsSource.value sourceWeenieName,
+                                    cook_book.target_W_C_I_D targetWeenieId,
+                                    wpsTarget.value targetWeenieName,
+                                    recipe.id recipeId,
+                                    recipe.skill skill,
+                                    recipe.difficulty difficulty,
+                                    recipe.success_W_C_I_D successWeenieId,
+                                    wpsSuccess.value successWeenieName,
+                                    recipe.success_Amount successAmount,
+                                    recipe.success_Message successMessage,
+                                    recipe.success_Destroy_Source_Chance successDestroySourceChance,
+                                    recipe.success_Destroy_Source_Amount successDestroySourceAmount,
+                                    recipe.success_Destroy_Source_Message successDestroySourceMessage,
+                                    recipe.fail_W_C_I_D failWeenieId,
+                                    wpsFail.value failWeenieName,
+                                    recipe.fail_Amount failAmount,
+                                    recipe.fail_Message failMessage,
+                                    recipe.fail_Destroy_Source_Chance failDestroySourceChance,
+                                    recipe.fail_Destroy_Source_Amount failDestroySourceAmount,
+                                    recipe.fail_Destroy_Source_Message failDestroySourceMessage                                    
+                                from
+                                    cook_book
+                                    join recipe on cook_book.recipe_Id = recipe.id
+                                    left join weenie_properties_string wpsSource on (wpsSource.type = 1 and wpsSource.object_Id = cook_book.source_W_C_I_D)
+                                    left join weenie_properties_string wpsTarget on (wpsTarget.type = 1 and wpsTarget.object_Id = cook_book.target_W_C_I_D)
+                                    left join weenie_properties_string wpsSuccess on (wpsSuccess.type = 1 and wpsSuccess.object_Id = recipe.success_W_C_I_D)
+                                    left join weenie_properties_string wpsFail on (wpsFail.type = 1 and wpsFail.object_Id = recipe.fail_W_C_I_D)
+                                where
+                                    ${column} = ?
+                                order by difficulty asc, ${column} asc");
+
+    $statement->execute(array($id));
+    
+    $recipes = array();
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $recipes[] = $row;
+    }
+    
+    return $recipes;
+}
+
+function array_clone($array) {
+    return array_map(function($element) {
+        return ((is_array($element))
+            ? array_clone($element)
+            : ((is_object($element))
+                ? clone $element
+                : $element
+            )
+        );
+    }, $array);
+}
+
+// usage can be success or fail
+function getRecipes($usage, $id) {
+    global $dbh;
+    
+    $column = $usage == 'fail' ? 'recipe.fail_W_C_I_D' : 'recipe.success_W_C_I_D';
+    $usageKey = $usage == 'fail' ? 'failWeenieId' : 'successWeenieId';
+
+    $q = "select 
+                                    cook_book.id cookBookId,
+                                    cook_book.source_W_C_I_D sourceWeenieId,
+                                    wpsSource.value sourceWeenieName,
+                                    cook_book.target_W_C_I_D targetWeenieId,
+                                    wpsTarget.value targetWeenieName,
+                                    recipe.id recipeId,
+                                    recipe.skill skill,
+                                    recipe.difficulty difficulty,
+                                    recipe.success_W_C_I_D successWeenieId,
+                                    wpsSuccess.value successWeenieName,
+                                    recipe.success_Amount successAmount,
+                                    recipe.success_Message successMessage,
+                                    recipe.success_Destroy_Source_Chance successDestroySourceChance,
+                                    recipe.success_Destroy_Source_Amount successDestroySourceAmount,
+                                    recipe.success_Destroy_Source_Message successDestroySourceMessage,
+                                    recipe.fail_W_C_I_D failWeenieId,
+                                    wpsFail.value failWeenieName,
+                                    recipe.fail_Amount failAmount,
+                                    recipe.fail_Message failMessage,
+                                    recipe.fail_Destroy_Source_Chance failDestroySourceChance,
+                                    recipe.fail_Destroy_Source_Amount failDestroySourceAmount,
+                                    recipe.fail_Destroy_Source_Message failDestroySourceMessage                                    
+                                from
+                                    cook_book
+                                    join recipe on cook_book.recipe_Id = recipe.id
+                                    left join weenie_properties_string wpsSource on (wpsSource.type = 1 and wpsSource.object_Id = cook_book.source_W_C_I_D)
+                                    left join weenie_properties_string wpsTarget on (wpsTarget.type = 1 and wpsTarget.object_Id = cook_book.target_W_C_I_D)
+                                    left join weenie_properties_string wpsSuccess on (wpsSuccess.type = 1 and wpsSuccess.object_Id = recipe.success_W_C_I_D)
+                                    left join weenie_properties_string wpsFail on (wpsFail.type = 1 and wpsFail.object_Id = recipe.fail_W_C_I_D)
+                                where
+                                    $column = ?";
+
+    $statement = $dbh->prepare($q);
+    
+    $recipes = array();
+    $statement->execute(array($id));
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $recipes[] = $row;
+    }
+
+    return $recipes;
+}
+
+function getRecipeLists($usage, $id, $recipeList = array()) {
+    $recipes = getRecipes($usage, $id);
+    
+    $lists = array();
+    foreach ($recipes as $recipe) {
+        $lists[] = array($recipe);
+    }
+    
+    $usageTypes = array('source', 'target');
+
+    while (true) {
+        $hasNew = false;
+
+        $listsCount = count($lists);
+        for ($l = 0; $l < $listsCount; $l++) {
+            // Make sure to find both the source and target crafting parents
+            foreach ($usageTypes as $usageType) {
+                $lastRecipe = end($lists[$l]);
+
+                $usageKey = $usageType . 'WeenieId';
+
+                $parentRecipes = getRecipes('success', $lastRecipe[$usageKey]);
+                $parentRecipesCount = count($parentRecipes);
+                if ($parentRecipesCount >= 1) {
+                    $hasNew = true;
+
+                    // Additional recipes need to be created as a new list
+                    // Do this before adding the top recipe to the current list                                
+                    if ($parentRecipesCount > 1) {
+                        for ($s = 1; $s < $parentRecipesCount; $s++) {                        
+                            $lists[] = array_merge(
+                                array_clone($lists[$l]),
+                                array($parentRecipes[$s])
+                            );
+                        }                    
+                    }
+
+                    // Add to the current list
+                    $lists[$l][] = $parentRecipes[0];
+                }
+            }
+        }
+                
+        if (!$hasNew) {
+            break;
+        }
+    }
+
+    return $lists;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/d374a8fc261dd09abc2e16607c6c202e20599937/Source/ACE.Server/WorldObjects/SkillCheck.cs#L7
+function getCraftingSkillForChance($difficulty, $chance) {
+    $result = (log((1 / (1 - $chance)) - 1) / 0.03) + $difficulty;
+    return round($result);
+}
+
+const CRAFTING_TYPES = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    18,
+    22,
+    26,
+    28,
+    32,
+    34,
+    35,
+    38,
+    44,
+    51,
+    63,
+    64
+];
 
 class PropertyFloat {
     // properties marked as ServerOnly are properties we never saw in PCAPs, from here:
@@ -1074,6 +1326,16 @@ class PropertyAttribute2nd {
     const Mana        = 6;
 }
 
+const ATTRIBUTES_2ND = [
+    "",
+    "Max Health",
+    "Health",
+    "Max Stamina",
+    "Stamina",
+    "Max Mana",
+    "Mana"
+];
+
 class WeenieType {
     const Undef = 0;
     const Generic = 1;
@@ -1372,6 +1634,14 @@ class PropertyDataId {
     const PCAPRecordedTimestamp9           = 8029;
     const PCAPRecordedMaxVelocityEstimated = 8030;
     const PCAPPhysicsDIDDataTemplatedFrom  = 8044;
+}
+
+class PropertyString {
+    const Name = 1;
+    const Use = 14;
+    const ShortDesc = 15;
+    const LongDesc = 16;
+    const PluralName = 20;
 }
 
 const WEENIE_TYPE = [
@@ -1691,83 +1961,118 @@ const DAMAGE_TYPE_INT = array(
     268435456 => 'Base',
 );
 
+const ITEM_TYPES = array(
+    0               => "None",
+    1               => "MeleeWeapon",
+    2               => "Armor",
+    4               => "Clothing",
+    8               => "Jewelry",
+    16              => "Creature",
+    32              => "Food",
+    64              => "Money",
+    128             => "Misc",
+    256             => "MissileWeapon",
+    512             => "Container",
+    1024            => "Useless",
+    2048            => "Gem",
+    4096            => "SpellComponents",
+    8192            => "Writable",
+    16384           => "Key",
+    32768           => "Caster",
+    65536           => "Portal",
+    131072          => "Lockable",
+    262144          => "PromissoryNote",
+    524288          => "ManaStone",
+    1048576         => "Service",
+    2097152         => "MagicWieldable",
+    4194304         => "CraftCookingBase",
+    8388608         => "CraftAlchemyBase",
+    33554432        => "CraftFletchingBase",
+    67108864        => "CraftAlchemyIntermediate",
+    134217728       => "CraftFletchingIntermediate",
+    268435456       => "LifeStone",
+    536870912       => "TinkeringTool",
+    1073741824      => "TinkeringMaterial",
+    2147483648      => "Gameboard",
+);
+
 const MATERIALS = [
     "Unknown",
-    "Ceramic",
-    "Porcelain",
-    "Cloth",
-    "Linen",
+    "Ceramic", // 1
+    "Porcelain", // 2
+    "Cloth", // 3
+    "Linen", // 4
     "Satin",
     "Silk",
     "Velvet",
     "Wool",
     "Gem",
-    "Agate",
+    "Agate", // 10
     "Amber",
     "Amethyst",
     "Aquamarine",
     "Azurite",
-    "BlackGarnet",
+    "BlackGarnet", // 15
     "BlackOpal",
     "Bloodstone",
     "Carnelian",
     "Citrine",
-    "Diamond",
+    "Diamond", // 20
     "Emerald",
     "FireOpal",
     "GreenGarnet",
     "GreenJade",
-    "Hematite",
+    "Hematite", // 25
     "ImperialTopaz",
     "Jet",
     "LapisLazuli",
     "LavenderJade",
-    "Malachite",
+    "Malachite", // 30
     "Moonstone",
     "Onyx",
     "Opal",
     "Peridot",
-    "RedGarnet",
+    "RedGarnet", // 35
     "RedJade",
     "RoseQuartz",
     "Ruby",
     "Sapphire",
-    "SmokeyQuartz",
+    "SmokeyQuartz", // 40
     "Sunstone",
     "TigerEye",
     "Tourmaline",
     "Turquoise",
-    "WhiteJade",
+    "WhiteJade", // 45
     "WhiteQuartz",
     "WhiteSapphire",
     "YellowGarnet",
     "YellowTopaz",
-    "Zircon",
+    "Zircon", // 50
     "Ivory",
     "Leather",
     "ArmoredilloHide",
     "GromnieHide",
-    "ReedSharkHide",
+    "ReedSharkHide", // 55
     "Metal",
     "Brass",
     "Bronze",
     "Copper",
-    "Gold",
+    "Gold", // 60
     "Iron",
     "Pyreal",
     "Silver",
     "Steel",
-    "Stone",
+    "Stone", // 65
     "Alabaster",
     "Granite",
     "Marble",
     "Obsidian",
-    "Sandstone",
+    "Sandstone", // 70
     "Serpentine",
     "Wood",
     "Ebony",
     "Mahogany",
-    "Oak",
+    "Oak", // 75
     "Pine",
     "Teak"
 ];

@@ -70,8 +70,10 @@ $regenRates = getRegenRates($floats);
 $maxRGB = 200;
 $minRGB = 20;
 
-$treasureDeath = getTreasureDeath($dataIds[PropertyDataId::DeathTreasureType]);
-
+$treasureDeath = array('tier' => 'Not Set');
+if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
+    $treasureDeath = getTreasureDeath($dataIds[PropertyDataId::DeathTreasureType]);
+}
 ?>
 
 <html>
@@ -546,7 +548,11 @@ if (count($createList) > 0) {
 ?>
     <tr>
         <td><?php echo $row['id']; ?></td>
-        <td><?php echo $row['name']; ?></td>
+        <td>
+            <a href="crafting.php?id=<?php echo $row['id']; ?>">
+                <?php echo $row['name']; ?>
+            </a>
+        </td>
         <td><?php echo $row['code']; ?></td>
         <td><?php echo round(100 * $row['chance'], 1); ?>%</td>
         <td>

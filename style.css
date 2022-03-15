@@ -60,6 +60,20 @@ div.footer {
 div.footer a {
 }
 
+.way {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 15px;
+}
+
+.way-number {
+    font-size: 60px;
+    font-family: serif;
+    width: 150px;
+    text-align: center;
+    padding-top: 5px;
+}
+
 @media only screen and (max-width: 600px) {
     .lookup-table thead tr th:nth-child(3),
     .lookup-table tbody tr td:nth-child(3),
@@ -83,5 +97,15 @@ div.footer a {
         width: 100%;
         overflow-x: auto;
         padding-bottom: 8px;
+    }
+    
+    .way {
+        display: block;
+        flex-direction: unset;
+    }
+
+    .way-number {
+        font-size: 30px;
+        text-align: left;
     }
 }
