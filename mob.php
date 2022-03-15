@@ -85,7 +85,7 @@ if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
 <body>
     
 <form method="GET" action="index.php">
-<input type="input" name="name" value="<?php echo $mob['name']; ?>" placeholder="Search" />
+<input type="text" name="name" value="<?php echo $name; ?>" size="30" placeholder="Search for creatures or crafting items" />
 <input type="submit" value="Lookup" />
 </form>
 

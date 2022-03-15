@@ -139,7 +139,7 @@ function showRecipesList($recipes, $showSteps = false) {
 <body>
     
 <form method="GET" action="index.php">
-<input type="input" name="name" value="<?php echo $item['name']; ?>" placeholder="Search" />
+<input type="input" name="name" value="<?php echo $item['name']; ?>" size="30" placeholder="Search for creatures or crafting items" />
 <input type="submit" value="Lookup" />
 </form>
 
@@ -304,7 +304,17 @@ if ($creaturesThatDrop) {
 ?>
     <tr<?php echo $rowClass; ?>>
         <td><?php echo $row['id']; ?></td>
-        <td><a href="mob.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a></td>
+        <td>
+<?php
+        if ($row['weenieType'] == 10 || $row['weenieType'] == 15) {
+?>
+            <a href="mob.php?id=<?php echo $row['id']; ?>"><?php echo $row['name']; ?></a>
+<?php
+        } else {
+            echo $row['name'];
+        }
+?>
+        </td>
         <td><?php echo $row['code']; ?></td>
         <td><?php echo CREATURE_TYPE[$row['type']]; ?></td>
         <td><?php echo round(100 * $row['chance'], 1); ?>%</td>

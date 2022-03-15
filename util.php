@@ -89,7 +89,8 @@ function getCreaturesThatDropItem($treasureWeenieId) {
                                     wpcl.shade chance,
                                     weenie.class_Name code,
                                     wps.value name,
-                                    wpi.value type
+                                    wpi.value type,
+                                    weenie.type weenieType
                                 from weenie_properties_create_list wpcl
                                 left join weenie_properties_string wps on (wps.object_Id = wpcl.object_Id)
                                 left join weenie on (weenie.class_Id = wpcl.object_Id)
@@ -692,9 +693,18 @@ function getRecipeLists($usage, $id, $recipeList = array()) {
 }
 
 // See https://github.com/ACEmulator/ACE/blob/d374a8fc261dd09abc2e16607c6c202e20599937/Source/ACE.Server/WorldObjects/SkillCheck.cs#L7
+$craftingSkills = array();
 function getCraftingSkillForChance($difficulty, $chance) {
+    $key = $difficulty . '-' . $chance;
+    if (isset($craftingSkills[$key])) {
+        return $craftingSkills[$key];
+    }
+
     $result = (log((1 / (1 - $chance)) - 1) / 0.03) + $difficulty;
-    return round($result);
+    $returner = round($result);
+    
+    $craftingSkills[$key] = $returner;
+    return $returner;
 }
 
 const CRAFTING_TYPES = [
