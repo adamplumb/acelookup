@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2022-03-14
+- Add new crafting page!
+- Updated ace_world to v0.9.246
+
 2021-03-20
 - Add Creature XP
 
