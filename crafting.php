@@ -176,11 +176,11 @@ if ($description) {
 <?php
 }
 
-if (isset($strings[PropertyString::Use])) {
+if (isset($strings[PropertyString::UseProp])) {
 ?>
 <tr>
     <th>Use</th>
-    <td><?php echo $strings[PropertyString::Use]; ?></td>
+    <td><?php echo $strings[PropertyString::UseProp]; ?></td>
 </tr>
 <?php
 }

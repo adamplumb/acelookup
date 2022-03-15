@@ -1648,7 +1648,7 @@ class PropertyDataId {
 
 class PropertyString {
     const Name = 1;
-    const Use = 14;
+    const UseProp = 14;
     const ShortDesc = 15;
     const LongDesc = 16;
     const PluralName = 20;
