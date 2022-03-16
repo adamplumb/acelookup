@@ -41,11 +41,6 @@ if ($name) {
         $creatureResults[] = $row;
     }
     
-    if (count($creatureResults) == 1) {
-        header("Location: mob.php?id={$creatureResults[0]['id']}\n");
-        exit;
-    }
-    
     $statement = $dbh->prepare("select 
                                         weenie.class_Id id,
                                         wps.value name,
@@ -68,8 +63,14 @@ if ($name) {
         $craftingResults[] = $row;
     }
     
-    if (count($craftingResults) == 1) {
+    if (count($craftingResults) == 1 && !$creatureResults) {
         header("Location: crafting.php?id={$craftingResults[0]['id']}\n");
+        exit;
+    }
+
+
+    if (count($creatureResults) == 1 && !$craftingResults) {
+        header("Location: mob.php?id={$creatureResults[0]['id']}\n");
         exit;
     }
 }

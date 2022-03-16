@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2022-03-16
+- Fix "name" notice in mob search field
+- Fix redirect behavior when one crafting or creature item is found
+
 2022-03-14
 - Add new crafting page!
 - Updated ace_world to v0.9.246
