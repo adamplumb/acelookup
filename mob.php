@@ -139,6 +139,7 @@ if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
 <thead>
     <tr>
         <th>Body Part</th>
+        <th>Base AL</th>
 <?php
 foreach ($damageTypes as $damageType => $damageProps) {
 ?>
@@ -152,12 +153,20 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <?php
 
 $armorRange = getArmorRange($effectiveArmor['bodyParts'], 'calculated');
+$baseArmorRange = getArmorRange($effectiveArmor['bodyParts'], 'baseArmor');
 $averageArmorRange = getArmorRange($effectiveArmor['average'], 'calculated');
+
 $index = 0;
 foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
+    $baseArmor = $armorByDamageType['Slash']['baseArmor'];
+    $percentBetween = percentageBetween($baseArmor, $baseArmorRange['min'], $baseArmorRange['max']);        
+    $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
+    $rgbLabel = "rgb(255, ${rgb}, ${rgb})";
+    
 ?>
     <tr class="alt">
         <td width="100" class="strong"><?php echo $bodyPart; ?></td>
+        <td width="60" style="background-color: <?php echo $rgbLabel; ?>"><?php echo $armorByDamageType['Slash']['baseArmor']; ?></td>
 <?php
     foreach ($damageTypes as $damageType => $damageProps) {
         $val = $armorByDamageType[$damageType]['calculated'];
@@ -179,7 +188,8 @@ foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
 </tbody>
 <thead>
     <tr>
-        <th width="100">&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>Base AL</th>
 <?php
 foreach ($damageTypes as $damageType => $damageProps) {
 ?>
@@ -192,6 +202,7 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <tbody>
     <tr class="alt">
         <td class="strong">Average</td>
+        <td><?php echo $effectiveArmor['average']['Average']['Slash']['baseArmor']; ?></td>
 <?php
     foreach ($damageTypes as $damageType => $damageProps) {
         $armor = $effectiveArmor['average']['Average'][$damageType];
@@ -570,7 +581,7 @@ if (count($createList) > 0) {
 <?php
 } else {
 ?>
-    <p> class="no-item-note"<i>No drop items found</i></p>
+    <p class="no-item-note"><i>No drop items found</i></p>
 <?php    
 }
 ?>

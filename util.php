@@ -266,10 +266,19 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
     $average = array();
 
     $count = 0;
-    foreach ($bodyArmor as $bodyPart => $bodyPartArmor) {
+    foreach ($bodyArmor as $bodyPart => $bodyPartArmor) {        
+        $totalQuadrant = $bodyPartArmor['h_l_f'] + $bodyPartArmor['m_l_f'] + $bodyPartArmor['l_l_f']
+                       + $bodyPartArmor['h_r_f'] + $bodyPartArmor['m_r_f'] + $bodyPartArmor['l_r_f']
+                       + $bodyPartArmor['h_l_b'] + $bodyPartArmor['m_l_b'] + $bodyPartArmor['l_l_b']
+                       + $bodyPartArmor['h_r_b'] + $bodyPartArmor['m_r_b'] + $bodyPartArmor['l_r_b'];
+
+        // This means it is a special offense-only body part that cannot be hit
+        if ($totalQuadrant == 0) {
+            continue;
+        }
+
         $effectiveArmor[$bodyPart] = array();
 
-        $totalForDamageType = 0;
         foreach ($damageTypes as $damageType => $damageProps) {
             $armorModProp = $damageProps['ArmorModProperty'];
             $resistModProp = $damageProps['ResistProperty'];
@@ -310,19 +319,13 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             } else {
                 $average[$damageType]['calculated'] += $calculated;
             }
-            
-            $totalForDamageType += $baseArmor;
         }
         
-        if ($totalForDamageType != 0) {
-            $count++;
-        } else {
-            unset($effectiveArmor[$bodyPart]);
-        }
+        $count++;
     }
     
     foreach ($average as $damageType => $stats) {
-        $average[$damageType]['baseArmor'] = round($stats['baseArmor'] / $count, 2);
+        $average[$damageType]['baseArmor'] = round($stats['baseArmor'] / $count);
         $average[$damageType]['armorMod'] = round($stats['armorMod'] / $count, 2);
         $average[$damageType]['resist'] = round($stats['resist'] / $count, 2);
         
@@ -330,7 +333,7 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             $average[$damageType]['calculated'] = round($stats['calculated'] / $count);
         }
     }
-
+    
     return array(
         'bodyParts' => $effectiveArmor,
         'average'   => array('Average' => $average)
@@ -628,7 +631,8 @@ function getRecipes($usage, $id) {
                                     left join weenie_properties_string wpsSuccess on (wpsSuccess.type = 1 and wpsSuccess.object_Id = recipe.success_W_C_I_D)
                                     left join weenie_properties_string wpsFail on (wpsFail.type = 1 and wpsFail.object_Id = recipe.fail_W_C_I_D)
                                 where
-                                    $column = ?";
+                                    $column = ?
+                                limit 30";
 
     $statement = $dbh->prepare($q);
     
@@ -637,7 +641,7 @@ function getRecipes($usage, $id) {
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $recipes[] = $row;
     }
-
+    
     return $recipes;
 }
 
@@ -651,11 +655,13 @@ function getRecipeLists($usage, $id, $recipeList = array()) {
     
     $usageTypes = array('source', 'target');
 
+    $count = 1;
     while (true) {
         $hasNew = false;
 
         $listsCount = count($lists);
         for ($l = 0; $l < $listsCount; $l++) {
+            
             // Make sure to find both the source and target crafting parents
             foreach ($usageTypes as $usageType) {
                 $lastRecipe = end($lists[$l]);
@@ -675,6 +681,13 @@ function getRecipeLists($usage, $id, $recipeList = array()) {
                                 array_clone($lists[$l]),
                                 array($parentRecipes[$s])
                             );
+
+        
+                            $count++;
+                            
+                            if ($count >= 30) {
+                                return $lists;
+                            }
                         }                    
                     }
 
@@ -1681,6 +1694,7 @@ const WEENIE_TYPE = [
     'Lockpick',
     'PressurePlate',
     'LifeStone',
+    'Switch',
     'PKModifier',
     'Healer',
     'LightSource',
@@ -1699,7 +1713,7 @@ const WEENIE_TYPE = [
     'GSpellEconomy',
     'LSpellEconomy',
     'CraftTool',
-    'LScoreKeeper',
+    'LScoreKeeper', // type 44
     'GScoreKeeper',
     'GScoreGatherer',
     'ScoreBook',

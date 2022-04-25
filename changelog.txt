@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2022-04-25
+- Fix incorrect damage reduction averages when there is an offense-only body part (like olthoi breath)
+- Fix incorrect html tag for empty mob drop items list
+- Fix incorrect weenie type reported by crafting items
+- Report boost per burden unit for certain crafted items
+- Protect against infinite loop
+
 2022-03-16
 - Fix "name" notice in mob search field
 - Fix redirect behavior when one crafting or creature item is found

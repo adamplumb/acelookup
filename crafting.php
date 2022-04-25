@@ -193,6 +193,10 @@ if (isset($ints[PropertyInt::BoostValue])) {
     <th>Boost</th>
     <td>Restores <?php echo $ints[PropertyInt::BoostValue]; ?> <?php echo $boosterAttribute; ?> when consumed</td>
 </tr>
+<tr>
+    <th>Boost/BU</th>
+    <td>Restores <?php echo round($ints[PropertyInt::BoostValue] / $ints[PropertyInt::EncumbranceVal], 1); ?> <?php echo $boosterAttribute; ?>/BU when consumed</td>
+</tr>
 <?php    
 }
 if (isset($ints[PropertyInt::MaxStackSize])) {
