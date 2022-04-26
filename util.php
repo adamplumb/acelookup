@@ -1842,7 +1842,8 @@ const SKILL_FORMULAS = array(
     'Spear'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Staff'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
     'Sword'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
-    'Unarmed Combat'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3)
+    'Unarmed Combat'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3),
+    'Dirty Fighting'           => array(PropertyAttribute::Strength, PropertyAttribute::Coordination, 3)
 );
 
 const CREATURE_TYPE = [
