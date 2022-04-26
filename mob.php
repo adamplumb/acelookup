@@ -118,7 +118,7 @@ if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
 </tr>
 <tr>
     <th>XP</th>
-    <td><?php echo $ints[PropertyInt::XpOverride]; ?></td>
+    <td><?php echo isset($ints[PropertyInt::XpOverride]) ? $ints[PropertyInt::XpOverride] : 0; ?></td>
 </tr>
 <tr>
     <th>Links</th>
