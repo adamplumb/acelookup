@@ -101,8 +101,16 @@ $unenchantable = isset($ints[PropertyInt::ResistMagic]) && $ints[PropertyInt::Re
 $hasArmorCleaving = isset($floats[PropertyFloat::IgnoreArmor]) ? true : false;
 $weaponType = isset($ints[PropertyInt::WeaponType]) ? WEAPON_TYPES[$ints[PropertyInt::WeaponType]] : null;
 
-$imbuedEffectValue = isset($ints[PropertyInt::ImbuedEffect]) ? abs($ints[PropertyInt::ImbuedEffect]) : '';
-$imbuedEffect = isset(IMBUED_EFFECTS[$imbuedEffectValue]) ? IMBUED_EFFECTS[$imbuedEffectValue] : '';
+$imbuedEffectValue = -1;
+if (isset($ints[PropertyInt::ImbuedEffect])) {
+    $imbuedEffectValue = abs($ints[PropertyInt::ImbuedEffect]);
+}
+
+$imbuedEffect = '';
+if (@IMBUED_EFFECTS[$imbuedEffectValue]) {
+    $imbuedEffect = IMBUED_EFFECTS[$imbuedEffectValue];
+}
+
 
 $finalWeaponOffense = $weaponOffense;
 if (isset($spellEffects[PropertyFloat::WeaponAuraOffense])) {
