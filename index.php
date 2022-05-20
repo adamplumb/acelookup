@@ -100,7 +100,7 @@ if ($name) {
     <h1>ACE Lookup</h1>
     <p>Research creature weaknesses, attacks, drop/crafting items, and weapons</p>
     <form method="GET">
-    <input type="text" name="name" value="<?php echo $name; ?>" size="30" placeholder="Search for creatures, crafting items, and weapons" />
+    <input type="text" name="name" value="<?php echo $name; ?>" size="40" placeholder="Search for creatures, crafting items, and weapons" />
     <input type="submit" value="Lookup" />
     </form>
 </div>
