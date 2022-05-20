@@ -37,7 +37,6 @@ $recipes = array_merge(
     getRecipesByWeenieId('source', $classId),
     getRecipesByWeenieId('target', $classId)
 );
-
 $creaturesThatDrop = getCreaturesThatDropItem($classId);
 
 $description = null;
@@ -154,9 +153,15 @@ function showRecipesList($recipes, $showSteps = false) {
     <th>Name</th>
     <td><?php echo $item['name']; ?></td>
 </tr>
+<?php
+$weenieType = WEENIE_TYPE[$item['type']];
+?>
 <tr>
     <th>Type</th>
-    <td><?php echo WEENIE_TYPE[$item['type']]; ?></td>
+    <td>
+        <?php echo $weenieType; ?>
+        <?php echo ($weenieType == 'MeleeWeapon' ? '<a href="weapons.php?id=' . $item['id'] . '">(Weapon Stats)</a>' : ''); ?>
+    </td>
 </tr>
 <tr>
     <th>Item Type</th>
@@ -210,7 +215,7 @@ if (isset($ints[PropertyInt::MaxStackSize])) {
 ?>
 <tr>
     <th>Value</th>
-    <td><?php echo $ints[PropertyInt::Value]; ?></td>
+    <td><?php echo isset($ints[PropertyInt::Value]) ? $ints[PropertyInt::Value] : 0; ?></td>
 </tr>
 <tr>
     <th>Burden</th>

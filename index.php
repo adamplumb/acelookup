@@ -4,9 +4,10 @@ include_once 'util.php';
 
 // Properties: https://github.com/ACEmulator/ACE/tree/master/Source/ACE.Entity/Enum/Properties
 
-$name = isset($_GET['name']) ? $_GET['name'] : '';
+$name = isset($_GET['name']) ? trim($_GET['name']) : '';
 $creatureResults = array();
 $craftingResults = array();
+$weaponResults = array();
 
 if ($name) {
 
@@ -18,28 +19,7 @@ if ($name) {
      * Int
      *  25 - Level
      */
-    $statement = $dbh->prepare("select 
-                                    weenie.class_Id id,
-                                    wps.value name,
-                                    weenie.class_Name code,
-                                    wpi.value level,
-                                    wpiType.value type
-                                from weenie 
-                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
-                                    left join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id and wpb.type = 19)
-                                    join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id and wpi.type = 25)
-                                    join weenie_properties_int wpiType on (wpiType.object_Id = weenie.class_Id and wpiType.type = 2)
-                                where 
-                                    weenie.type in (10, 15)
-                                    and (wpb.value = 1 or wpb.value is null)
-                                    and (wps.value like ? or weenie.class_Name like ?)
-                                order by level asc, id asc");
-
-    $statement->execute(array("%${name}%", "%${name}%"));
-
-    while ($row = $statement->fetch()) {
-        $creatureResults[] = $row;
-    }
+    $creatureResults = searchCreatures($name);
     
     $statement = $dbh->prepare("select 
                                         weenie.class_Id id,
@@ -63,14 +43,40 @@ if ($name) {
         $craftingResults[] = $row;
     }
     
-    if (count($craftingResults) == 1 && !$creatureResults) {
+    $statement = $dbh->prepare("select 
+                                        weenie.class_Id id,
+                                        wps.value name,
+                                        weenie.type type,
+                                        wpi.value itemType,
+                                        weenie.class_Name code
+                                    from weenie 
+                                        join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
+                                        join weenie_properties_int wpi on (wpi.object_Id = weenie.class_Id)
+                                    where
+                                        wpi.type = 1
+                                        and wps.type = 1
+                                        and weenie.type in (" . implode(', ', WEAPON_WEENIE_TYPES) . ")
+                                        and (wps.value like ? or weenie.class_Name like ?)
+                                    order by name asc");
+
+    $statement->execute(array("%${name}%", "%${name}%"));
+
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $weaponResults[] = $row;
+    }
+    
+    if (count($craftingResults) == 1 && !$creatureResults && !$weaponResults) {
         header("Location: crafting.php?id={$craftingResults[0]['id']}\n");
         exit;
     }
 
-
-    if (count($creatureResults) == 1 && !$craftingResults) {
+    if (count($creatureResults) == 1 && !$craftingResults && !$weaponResults) {
         header("Location: mob.php?id={$creatureResults[0]['id']}\n");
+        exit;
+    }
+
+    if (count($weaponResults) == 1 && !$craftingResults && !$creatureResults) {
+        header("Location: weapons.php?id={$weaponResults[0]['id']}\n");
         exit;
     }
 }
@@ -135,8 +141,8 @@ if ($name) {
 ?>
 </tbody>
 </table>
-<?php
 
+<?php
     if ($craftingResults) {
 ?>
 <br />
@@ -165,12 +171,53 @@ if ($name) {
 <?php
             $index++;
         }
-    }
 ?>
 </tbody>
 </table>
-
 <?php
+    }
+
+    if ($weaponResults) {
+?>
+<br />
+<h3>Weapons</h3>
+<table class="horizontal-table lookup-table" align="center">
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Item Type</th>
+        <th>Code</th>
+    </tr>
+</thead>
+<tbody>
+<?php
+        $passThruKeys = array('creatureId', 'attributeValue', 'damageRating', 'criticalDamageRating', 'powerLevel');
+        $queryString = '';
+        foreach ($passThruKeys as $key) {
+            if (isset($_GET[$key])) {
+                $queryString .= "&" . $key . "=" . $_GET[$key];
+            }
+        }
+
+        $index = 0;
+        foreach ($weaponResults as $row) {
+            $rowClass = $index % 2 == 1 ? ' class="alt"' : '';
+?>
+    <tr<?php echo $rowClass; ?>>
+        <td><?php echo $row['id']; ?></td>
+        <td><a href="weapons.php?id=<?php echo $row['id']; ?><?php echo $queryString; ?>"><?php echo $row['name']; ?></a></td>
+        <td><?php echo ITEM_TYPES[$row['itemType']]; ?></td>
+        <td><?php echo $row['code']; ?></td>
+    </tr>
+<?php
+            $index++;
+        }
+?>
+</tbody>
+</table>
+<?php
+    }
 }
 
 include_once 'footer.php';

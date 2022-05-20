@@ -34,6 +34,56 @@ function getCreature($weenieId) {
     return $mob;
 }
 
+function searchCreatures($name) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select 
+                                    weenie.class_Id id,
+                                    wps.value name,
+                                    weenie.class_Name code,
+                                    wpi.value level,
+                                    wpiType.value type
+                                from weenie 
+                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
+                                    left join weenie_properties_bool wpb on (wpb.object_Id = weenie.class_Id and wpb.type = 19)
+                                    join weenie_properties_int wpi on (wpi.object_id = weenie.class_Id and wpi.type = 25)
+                                    join weenie_properties_int wpiType on (wpiType.object_Id = weenie.class_Id and wpiType.type = 2)
+                                where 
+                                    weenie.type in (10, 15)
+                                    and (wpb.value = 1 or wpb.value is null)
+                                    and (wps.value like ? or weenie.class_Name like ?)
+                                order by level asc, id asc");
+
+    $statement->execute(array("%${name}%", "%${name}%"));
+
+    $creatureResults = array();
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $creatureResults[] = $row;
+    }
+    
+    return $creatureResults;
+}
+
+function getWeapon($weenieId) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select 
+                                        weenie.class_Id id,
+                                        wps.value name,
+                                        weenie.type type,
+                                        weenie.class_Name code
+                                    from weenie 
+                                        join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
+                                    where
+                                        weenie.type in (" . implode(', ', WEAPON_WEENIE_TYPES) . ")
+                                        and (wps.type = 1 and weenie.class_Id = ?)");
+
+    $statement->execute(array($weenieId));
+    $item = $statement->fetch(PDO::FETCH_ASSOC);
+    
+    return $item;
+}
+
 function getCraftingItem($weenieId) {
     global $dbh;
 
@@ -194,7 +244,10 @@ function getSpellBook($weenieId) {
     $statement = $dbh->prepare("select 
                                     s.id id,
                                     s.name name,
-                                    wpsb.probability probability 
+                                    wpsb.probability probability,
+                                    s.stat_Mod_Type,
+                                    s.stat_Mod_Key,
+                                    s.stat_Mod_Val
                                         from weenie_properties_spell_book wpsb
                                         join spell s on s.id = wpsb.spell
                                         where wpsb.object_Id = ?
@@ -209,11 +262,114 @@ function getSpellBook($weenieId) {
         $spellBook[] = array(
             'id'            => $row['id'],
             'name'          => $row['name'],
-            'probability'   => round($row['probability'], 2)
+            'probability'   => round($row['probability'], 2),
+            'statModType'   => $row['stat_Mod_Type'],
+            'statModKey'    => $row['stat_Mod_Key'],
+            'statModVal'    => $row['stat_Mod_Val']
         );
     }
     
     return $spellBook;
+}
+
+function getMaxSpellLevel($spellBook) {
+    $maxSpellLevel = 0;
+    
+    foreach ($spellBook as $spell) {
+        $spellLevel = 0;
+        if (strstr($spell['name'], ' I ') !== false) {
+            $spellLevel = 1;
+        } else if (strstr($spell['name'], ' II ') !== false) {
+            $spellLevel = 2;
+        } else if (strstr($spell['name'], ' III ') !== false) {
+            $spellLevel = 3;
+        } else if (strstr($spell['name'], ' IV ') !== false) {
+            $spellLevel = 4;
+        } else if (strstr($spell['name'], ' V ') !== false) {
+            $spellLevel = 5;
+        } else if (strstr($spell['name'], ' VI ') !== false) {
+            $spellLevel = 6;
+        } else if (strstr($spell['name'], 'Incantation') !== false) {
+            $spellLevel = 8;
+        } else if ($spell['statModVal'] == 40) {
+            $spellLevel = 7;
+        }
+        
+        if ($spellLevel > $maxSpellLevel) {
+            $maxSpellLevel = $spellLevel;
+        }
+    }
+    
+    return $maxSpellLevel;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/WorldObject_Weapon.cs#L786
+function getArmorCleavingMod($hasArmorCleaving, $maxSpellLevel) {
+    if (!$hasArmorCleaving) {
+        return 1;
+    }
+    
+    return 1 - (0.1 + ($maxSpellLevel * 0.05));
+}
+
+function getResistanceCleavingMod($resistanceModifierType, $resistanceMod) {
+    if ($resistanceModifierType && $resistanceMod) {
+        return 1 + $resistanceMod;
+    }
+    
+    return 1;
+}
+
+const ARMOR_MOD = 200 / 3;
+function calcArmorMod($armorLevel) {
+    if ($armorLevel > 0) {
+        return ARMOR_MOD / ($armorLevel + ARMOR_MOD);
+    } else if ($armorLevel < 0) {
+        return 1 - ($armorLevel / ARMOR_MOD);
+    } else {
+        return 1;
+    }
+}
+
+function getWeaponDamageAttribute($skill, $weaponType) {
+    if ($skill == 'Finesse Weapons') {
+        return PropertyAttribute::Coordination;
+    } else if ($skill == 'Missile Weapons') {
+        if ($weaponType == 'Thrown Weapons') {
+            return PropertyAttribute::Strength;
+        } else {
+            return PropertyAttribute::Coordination;
+        }
+    } else {
+        return PropertyAttribute::Strength;
+    }
+}
+
+const ATTRIBUTE_DAMAGE_MOD_BOW = 0.008;
+const ATTRIBUTE_DAMAGE_MOD_DEFAULT = 0.011;
+
+function shouldUseBowMod($weaponType) {
+    return ($weaponType == 'Bow' || $weaponType == 'Crossbow');
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/SkillFormula.cs#L18
+function getAttributeDamageMod($value, $weaponType) {
+    $factor = shouldUseBowMod($weaponType) ? ATTRIBUTE_DAMAGE_MOD_BOW : ATTRIBUTE_DAMAGE_MOD_DEFAULT;
+    
+    $mod = 1 + (($value - 55) * $factor);
+    if ($mod < 1) {
+        return 1;
+    } else {
+        return $mod;
+    }
+}
+
+function getPowerMod($powerLevel, $isRanged) {
+    if ($isRanged) {
+        return 1;
+    } else {
+        return $powerLevel + 0.5;
+    }
 }
 
 function getSkills($weenieId, $attributes) {    
@@ -261,25 +417,63 @@ function getKeyValues($propertyType, $weenieId, $keyColumn, $valueColumn) {
     return $properties;    
 }
 
+const DAMAGE_TYPES_MAP = array(
+    'Slash' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsSlash,
+        'ResistProperty' => PropertyFloat::ResistSlash
+    ), 
+    'Bludgeon' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsBludgeon,
+        'ResistProperty' => PropertyFloat::ResistBludgeon 
+    ), 
+    'Pierce' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsPierce,
+        'ResistProperty' => PropertyFloat::ResistPierce 
+    ), 
+    'Cold' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsCold,
+        'ResistProperty' => PropertyFloat::ResistCold 
+    ), 
+    'Fire' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsFire,
+        'ResistProperty' => PropertyFloat::ResistFire 
+    ), 
+    'Acid' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsAcid,
+        'ResistProperty' => PropertyFloat::ResistAcid 
+    ), 
+    'Electric' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsElectric,
+        'ResistProperty' => PropertyFloat::ResistElectric 
+    ), 
+    'Nether' => array(
+        'ArmorModProperty' => PropertyFloat::ArmorModVsNether,
+        'ResistProperty' => PropertyFloat::ResistNether
+    )
+);
 
-function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
+function isHittableBodyPart($bodyPartArmor) {
+    $totalQuadrant = $bodyPartArmor['h_l_f'] + $bodyPartArmor['m_l_f'] + $bodyPartArmor['l_l_f']
+                   + $bodyPartArmor['h_r_f'] + $bodyPartArmor['m_r_f'] + $bodyPartArmor['l_r_f']
+                   + $bodyPartArmor['h_l_b'] + $bodyPartArmor['m_l_b'] + $bodyPartArmor['l_l_b']
+                   + $bodyPartArmor['h_r_b'] + $bodyPartArmor['m_r_b'] + $bodyPartArmor['l_r_b'];
+
+    // This means it is a special offense-only body part that cannot be hit
+    return ($totalQuadrant != 0);
+}
+
+function getEffectiveArmor($bodyArmor, $floats) {
     $average = array();
 
     $count = 0;
     foreach ($bodyArmor as $bodyPart => $bodyPartArmor) {        
-        $totalQuadrant = $bodyPartArmor['h_l_f'] + $bodyPartArmor['m_l_f'] + $bodyPartArmor['l_l_f']
-                       + $bodyPartArmor['h_r_f'] + $bodyPartArmor['m_r_f'] + $bodyPartArmor['l_r_f']
-                       + $bodyPartArmor['h_l_b'] + $bodyPartArmor['m_l_b'] + $bodyPartArmor['l_l_b']
-                       + $bodyPartArmor['h_r_b'] + $bodyPartArmor['m_r_b'] + $bodyPartArmor['l_r_b'];
-
-        // This means it is a special offense-only body part that cannot be hit
-        if ($totalQuadrant == 0) {
+        if (!isHittableBodyPart($bodyPartArmor)) {
             continue;
         }
 
         $effectiveArmor[$bodyPart] = array();
 
-        foreach ($damageTypes as $damageType => $damageProps) {
+        foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
             $armorModProp = $damageProps['ArmorModProperty'];
             $resistModProp = $damageProps['ResistProperty'];
 
@@ -290,7 +484,7 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
             if ($resistVsDamageType == 0) {
                 $calculated = 'INF';
             } else {
-                $armorMod = getArmorMod($baseArmor * $armorModVsDamageType);
+                $armorMod = calcArmorMod($baseArmor * $armorModVsDamageType);
                 $calculated = round(100 * $armorMod * $resistVsDamageType);
             }
 
@@ -340,10 +534,111 @@ function getEffectiveArmor($bodyArmor, $damageTypes, $floats) {
     );
 }
 
-function getMagicResistances($damageTypes, $floats) {
+function getAverageBaseArmorLevel($bodyArmor) {
+    $totalBaseArmor = 0;
+    $count = 0;
+    
+    foreach ($bodyArmor as $bodyPartArmor) {
+        if (isHittableBodyPart($bodyPartArmor)) {
+            $totalBaseArmor += $bodyPartArmor['base_Armor'];
+            $count++;
+        }
+    }
+    
+    return $totalBaseArmor / $count;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_BodyPart.cs#L36
+function getEffectiveArmorVsType(
+    $floats,
+    $armorLevel,
+    $damageType,
+    $armorAddedFromEnchantment = 0, // From either Imperil (negative) or Armor (positive)
+    $armorRendingMod = 1,
+    $ignoreMagicArmor = false,
+    $ignoreMagicResist = false,
+    $phantasmal = false
+) {
+    $armorModVsType = getArmorModVsType($floats, $damageType);
+    $armorVsType = $armorLevel * $armorModVsType;
+    
+    // Called enchantmentMod in ACE
+    // Enchantments are ignored if the weapon has Float::IgnoreMagicResist
+    $effectiveArmorAddedFromEnchantment = $ignoreMagicResist ? 0 : $armorAddedFromEnchantment;
+    
+    $effectiveArmorLevel = $armorVsType + $effectiveArmorAddedFromEnchantment;
+    
+    // At this point we're ignoring armor layers, which I think might be clothing/armor banes
+    // Can we safely ignore it for monsters?
+    
+    $effectiveArmorLevelAfterRending = $effectiveArmorLevel;
+    if ($effectiveArmorLevel > 0) {
+        $effectiveArmorLevelAfterRending *= $armorRendingMod;
+    }
+    
+    if ($phantasmal) {
+        $armorModVsType = 0;
+        $effectiveArmorLevel = 0;
+        $effectiveArmorLevelAfterRending = 0;
+    }
+    
+    return array(
+        'armorLevel'     => $armorLevel,
+        'armorModVsType' => $armorModVsType,
+        'armorVsType'    => $armorVsType,
+        'ignoreMagicArmor'  => $ignoreMagicArmor,
+        'ignoreMagicResist' => $ignoreMagicResist,
+        'armorAddedFromEnchantment' => $armorAddedFromEnchantment,
+        'effectiveArmorAddedFromEnchantment' => $effectiveArmorAddedFromEnchantment,
+        'effectiveArmorLevel' => $effectiveArmorLevel,
+        'effectiveArmorLevelAfterRending' => $effectiveArmorLevelAfterRending
+    );
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_BodyPart.cs#L29
+function getEffectiveArmorObj(
+    $floats,
+    $armorLevel,
+    $damageType,
+    $armorAddedFromEnchantment = 0, // From either Imperil (negative) or Armor (positive)
+    $armorRendingMod = 1,
+    $ignoreMagicArmor = false,
+    $ignoreMagicResist = false,
+    $phantasmal = false
+) {
+    $effectiveArmorVsType = getEffectiveArmorVsType(
+        $floats,
+        $armorLevel,
+        $damageType,
+        $armorAddedFromEnchantment,
+        $armorRendingMod,
+        $ignoreMagicArmor,
+        $ignoreMagicResist,
+        $phantasmal
+    );
+    
+    $armorMod = calcArmorMod($effectiveArmorVsType['effectiveArmorLevelAfterRending']);
+    $effectiveArmorVsType['calculatedArmorMod'] = $armorMod;
+    
+    return $effectiveArmorVsType;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_Properties.cs#L160
+function getArmorModVsType($floats, $damageType) {
+    $armorModProp = DAMAGE_TYPES_MAP[$damageType]['ArmorModProperty'];
+    return isset($floats[$armorModProp]) ? round($floats[$armorModProp], 2) : 1;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_Properties.cs#L185
+function getResistanceModVsType($floats, $damageType) {
+    $resistModProp = DAMAGE_TYPES_MAP[$damageType]['ResistProperty'];
+    return isset($floats[$resistModProp]) ? round($floats[$resistModProp], 2) : 1;
+}
+
+function getMagicResistances($floats) {
     $resistances = array();
     
-    foreach ($damageTypes as $damageType => $damageProps) {
+    foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
         $resistance = isset($floats[$damageProps['ResistProperty']]) ? $floats[$damageProps['ResistProperty']] : 0;
         
         if ($resistance) {
@@ -380,10 +675,6 @@ function getArmorRange($effectiveArmor, $key) {
         'min' => $min,
         'max' => $max
     );
-}
-
-function getArmorMod($armorLevel) {
-    return 66.67 / ($armorLevel + 66.67);
 }
 
 function getWieldedItems($weenieId) {
@@ -740,6 +1031,10 @@ const CRAFTING_TYPES = [
     51,
     63,
     64
+];
+
+const WEAPON_WEENIE_TYPES = [
+    6 // MeleeWeapon
 ];
 
 class PropertyFloat {
@@ -1338,6 +1633,16 @@ class PropertyAttribute {
     const Focus        = 5;
     const Self         = 6;
 }
+
+const ATTRIBUTES = [
+    'Undef',
+    'Strength',
+    'Endurance',
+    'Quickness',
+    'Coordination',
+    'Focus',
+    'Self'
+];
 
 class PropertyAttribute2nd {
     const Undef       = 0;
@@ -2133,3 +2438,73 @@ const DefaultNonMagicalChanceTable = [
     array('itemType' => TreasureItemType::Jewelry, 'probability' => 0.10),
     array('itemType' => TreasureItemType::Dinnerware, 'probability' => 0.08)
 ];
+
+const WIELD_REQUIREMENTS = [
+    'Invalid',
+    'Skill',
+    'RawSkill',
+    'Attrib',
+    'RawAttrib',
+    'SecondaryAttrib',
+    'RawSecondaryAttrib',
+    'Level',
+    'Training',
+    'IntStat',
+    'BoolStat',
+    'CreatureType',
+    'HeritageType'
+];
+
+/**
+ * const WieldRequirements                        = 158;
+ * const WieldSkillType                           = 159;
+ * const WieldDifficulty                          = 160;
+ */
+function getWieldRequirementDisplay($requirement, $skillType, $difficulty) {
+    $skillWord = 'base';
+    $skill = SKILLS_LIST[$skillType];
+    
+    return "Your ${skillWord} ${skill} must be at least ${difficulty} to wield this item.";
+}
+
+const WEAPON_TYPES = [
+    'Undef',
+    'Unarmed',
+    'Sword',
+    'Axe',
+    'Mace',
+    'Spear',
+    'Dagger',
+    'Staff',
+    'Bow',
+    'Crossbow',
+    'Thrown',
+    'TwoHanded',
+    'Magic'
+];
+
+function clamp($val, $min, $max) {
+    return max($min, min($max, val));
+}
+
+const IMBUED_EFFECTS = array(
+    0 => "Undef",
+    1 => "CriticalStrike",
+    2 => "CripplingBlow",
+    4 => "ArmorRending",
+    8 => "SlashRending",
+    16 => "PierceRending",
+    32 => "BludgeonRending",
+    64 => "AcidRending",
+    128 => "ColdRending",
+    256 => "ElectricRending",
+    512 => "FireRending",
+    1024 => "MeleeDefense",
+    2048 => "MissileDefense",
+    4096 => "MagicDefense",
+    8192 => "Spellbook",
+    16384 => "NetherRending",
+    536870912 => "IgnoreSomeMagicProjectileDamage",
+    1073741824 => "AlwaysCritical",
+    2147483648 => "IgnoreAllArmor",
+);

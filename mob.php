@@ -27,44 +27,11 @@ $skills = getSkills($classId, $attributes);
 $createList = getCreateList($classId);
 $spellBook = getSpellBook($classId);
 $wieldedItems = getWieldedItems($classId);
-$damageTypes = array(
-    'Slash' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsSlash,
-        'ResistProperty' => PropertyFloat::ResistSlash
-    ), 
-    'Bludgeon' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsBludgeon,
-        'ResistProperty' => PropertyFloat::ResistBludgeon 
-    ), 
-    'Pierce' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsPierce,
-        'ResistProperty' => PropertyFloat::ResistPierce 
-    ), 
-    'Cold' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsCold,
-        'ResistProperty' => PropertyFloat::ResistCold 
-    ), 
-    'Fire' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsFire,
-        'ResistProperty' => PropertyFloat::ResistFire 
-    ), 
-    'Acid' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsAcid,
-        'ResistProperty' => PropertyFloat::ResistAcid 
-    ), 
-    'Electric' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsElectric,
-        'ResistProperty' => PropertyFloat::ResistElectric 
-    ), 
-    'Nether' => array(
-        'ArmorModProperty' => PropertyFloat::ArmorModVsNether,
-        'ResistProperty' => PropertyFloat::ResistNether
-    )
-);
+
 
 $specialProperties = getSpecialProperties($floats, $ints, $bools);
-$effectiveArmor = getEffectiveArmor($bodyArmor, $damageTypes, $floats);
-$magicResistances = getMagicResistances($damageTypes, $floats);
+$effectiveArmor = getEffectiveArmor($bodyArmor, $floats);
+$magicResistances = getMagicResistances($floats);
 $regenRates = getRegenRates($floats);
 
 $maxRGB = 200;
@@ -141,7 +108,7 @@ if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
         <th>Body Part</th>
         <th>Base AL</th>
 <?php
-foreach ($damageTypes as $damageType => $damageProps) {
+foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
 ?>
         <th><?php echo $damageType; ?></th>
 <?php
@@ -168,7 +135,7 @@ foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
         <td width="100" class="strong"><?php echo $bodyPart; ?></td>
         <td width="60" style="background-color: <?php echo $rgbLabel; ?>"><?php echo $armorByDamageType['Slash']['baseArmor']; ?></td>
 <?php
-    foreach ($damageTypes as $damageType => $damageProps) {
+    foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
         $val = $armorByDamageType[$damageType]['calculated'];
         $percentBetween = percentageBetween($val, $armorRange['max'], $armorRange['min']);        
         $rgb = 255 - round((($maxRGB - $minRGB) * $percentBetween) + $minRGB);
@@ -191,7 +158,7 @@ foreach ($effectiveArmor['bodyParts'] as $bodyPart => $armorByDamageType) {
         <th>&nbsp;</th>
         <th>Base AL</th>
 <?php
-foreach ($damageTypes as $damageType => $damageProps) {
+foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
 ?>
         <th><?php echo $damageType; ?></th>
 <?php
@@ -204,7 +171,7 @@ foreach ($damageTypes as $damageType => $damageProps) {
         <td class="strong">Average</td>
         <td><?php echo $effectiveArmor['average']['Average']['Slash']['baseArmor']; ?></td>
 <?php
-    foreach ($damageTypes as $damageType => $damageProps) {
+    foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
         $armor = $effectiveArmor['average']['Average'][$damageType];
         $val = $armor['calculated'];
         $percentBetween = percentageBetween($val, $averageArmorRange['max'], $averageArmorRange['min']);        
@@ -230,7 +197,7 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <thead>
     <tr>
 <?php
-foreach ($damageTypes as $damageType => $damageProps) {
+foreach (DAMAGE_TYPES_MAP as $damageType => $damageProps) {
 ?>
         <th><?php echo $damageType; ?></th>
 <?php
@@ -243,7 +210,7 @@ foreach ($damageTypes as $damageType => $damageProps) {
 <?php
     $minResist = min(array_values($magicResistances));
     $maxResist = max(array_values($magicResistances));
-    foreach ($damageTypes as $damageType => $a) {
+    foreach (DAMAGE_TYPES_MAP as $damageType => $a) {
         $resistance = isset($magicResistances[$damageType]) ? $magicResistances[$damageType] : null;
         
         if ($resistance) {
