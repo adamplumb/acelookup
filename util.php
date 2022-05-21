@@ -549,7 +549,7 @@ function getAverageBaseArmorLevel($bodyArmor) {
 }
 
 // See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_BodyPart.cs#L36
-function getEffectiveArmorVsType(
+function getEffectiveArmorObj(
     $floats,
     $armorLevel,
     $damageType,
@@ -577,10 +577,11 @@ function getEffectiveArmorVsType(
     }
     
     if ($phantasmal) {
-        $armorModVsType = 0;
         $effectiveArmorLevel = 0;
         $effectiveArmorLevelAfterRending = 0;
     }
+    
+    $armorMod = calcArmorMod($effectiveArmorLevelAfterRending);
     
     return array(
         'armorLevel'     => $armorLevel,
@@ -591,42 +592,77 @@ function getEffectiveArmorVsType(
         'armorAddedFromEnchantment' => $armorAddedFromEnchantment,
         'effectiveArmorAddedFromEnchantment' => $effectiveArmorAddedFromEnchantment,
         'effectiveArmorLevel' => $effectiveArmorLevel,
-        'effectiveArmorLevelAfterRending' => $effectiveArmorLevelAfterRending
+        'effectiveArmorLevelAfterRending' => $effectiveArmorLevelAfterRending,
+        'armorMod'      => $armorMod
     );
 }
 
-// See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_BodyPart.cs#L29
-function getEffectiveArmorObj(
+// https://github.com/ACEmulator/ACE/blob/8f9e96fbdaf0d86cb1fffa4c64115ec973e846b0/Source/ACE.Server/WorldObjects/Creature_Combat.cs#L643
+function getShieldModObj(
     $floats,
     $armorLevel,
     $damageType,
     $armorAddedFromEnchantment = 0, // From either Imperil (negative) or Armor (positive)
-    $armorRendingMod = 1,
+    $ignoreShieldValue = 0,
     $ignoreMagicArmor = false,
     $ignoreMagicResist = false,
     $phantasmal = false
 ) {
-    $effectiveArmorVsType = getEffectiveArmorVsType(
-        $floats,
-        $armorLevel,
-        $damageType,
-        $armorAddedFromEnchantment,
-        $armorRendingMod,
-        $ignoreMagicArmor,
-        $ignoreMagicResist,
-        $phantasmal
+    $armorModVsType = getArmorModVsType($floats, $damageType);
+    $armorVsType = $armorLevel * $armorModVsType;
+    
+    // Called enchantmentMod in ACE
+    // Enchantments are ignored if the weapon has Float::IgnoreMagicResist
+    $effectiveArmorAddedFromEnchantment = $ignoreMagicResist ? 0 : $armorAddedFromEnchantment;
+    
+    $effectiveArmorLevel = $armorVsType + $effectiveArmorAddedFromEnchantment;
+    
+    // At this point we're ignoring armor layers, which I think might be clothing/armor banes
+    // Can we safely ignore it for monsters?
+    
+    $ignoreShieldMod = getIgnoreShieldMod($ignoreShieldValue);
+    
+    $effectiveArmorLevelAfterIgnore = $effectiveArmorLevel;
+    if ($effectiveArmorLevel > 0) {
+        $effectiveArmorLevelAfterIgnore *= $ignoreShieldMod;
+    }
+    
+    if ($phantasmal) {
+        $effectiveArmorLevel = 0;
+        $effectiveArmorLevelAfterIgnore = 0;
+    }
+    
+    $shieldMod = calcArmorMod($effectiveArmorLevelAfterIgnore);
+    
+    return array(
+        'armorLevel'     => $armorLevel,
+        'armorModVsType' => $armorModVsType,
+        'armorVsType'    => $armorVsType,
+        'ignoreMagicArmor'  => $ignoreMagicArmor,
+        'ignoreMagicResist' => $ignoreMagicResist,
+        'ignoreShieldValue' => $ignoreShieldValue,
+        'ignoreShieldMod'   => $ignoreShieldMod,
+        'armorAddedFromEnchantment' => $armorAddedFromEnchantment,
+        'effectiveArmorAddedFromEnchantment' => $effectiveArmorAddedFromEnchantment,
+        'effectiveArmorLevel' => $effectiveArmorLevel,
+        'effectiveArmorLevelAfterIgnore' => $effectiveArmorLevelAfterIgnore,
+        'shieldMod'      => $shieldMod
     );
-    
-    $armorMod = calcArmorMod($effectiveArmorVsType['effectiveArmorLevelAfterRending']);
-    $effectiveArmorVsType['calculatedArmorMod'] = $armorMod;
-    
-    return $effectiveArmorVsType;
 }
 
 // See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_Properties.cs#L160
 function getArmorModVsType($floats, $damageType) {
     $armorModProp = DAMAGE_TYPES_MAP[$damageType]['ArmorModProperty'];
     return isset($floats[$armorModProp]) ? round($floats[$armorModProp], 2) : 1;
+}
+
+// See https://github.com/ACEmulator/ACE/blob/8f9e96fbdaf0d86cb1fffa4c64115ec973e846b0/Source/ACE.Server/WorldObjects/WorldObject_Weapon.cs#L804
+function getIgnoreShieldMod($ignoreShieldValue) {
+    if (!$ignoreShieldValue) {
+        $ignoreShieldValue = 0;
+    }
+
+    return 1 - $ignoreShieldValue;
 }
 
 // See https://github.com/ACEmulator/ACE/blob/7d61b543e3c24652c4db0ddfee0eb829b7cf09cf/Source/ACE.Server/WorldObjects/Creature_Properties.cs#L185
@@ -723,6 +759,65 @@ function getWieldedItems($weenieId) {
     }
     
     return $items;    
+}
+
+
+function getWieldedShields($weenieId) {
+    global $dbh;
+
+    /**
+     * wdid.type 32 is the wielded treasure type
+     * wps.type 1 is the weenie name
+     */
+    $statement = $dbh->prepare("select 
+                                    weenie.class_Id id,
+                                    weenie.class_Name code,
+                                    tw.probability probability, 
+                                    wps.value name,
+                                    wpAL.value armorLevel
+                                from
+                                    weenie_properties_d_i_d wdid 
+                                    join treasure_wielded tw on (wdid.value = tw.treasure_Type and wdid.type = 32)
+                                    join weenie on weenie.class_Id = tw.weenie_Class_Id
+                                    join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
+                                    left join weenie_properties_int wpAL on (wpAL.object_Id = weenie.class_Id and wpAL.type = 28)
+                                where
+                                    wdid.object_Id = ?
+                                    and wpAL.value > 0
+                                order by probability desc");
+    $statement->execute(array($weenieId));
+
+    $items = array();
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $items[] = array(
+            'id'            => $row['id'],
+            'name'          => $row['name'],
+            'probability'   => $row['probability'],
+            'code'          => $row['code'],
+            'armorLevel'    => $row['armorLevel']
+        );
+    }
+    
+    return $items;
+}
+
+function getWeenie($id) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select 
+                                        weenie.class_Id id,
+                                        wps.value name,
+                                        weenie.type type,
+                                        weenie.class_Name code
+                                    from weenie 
+                                        join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
+                                    where 
+                                        weenie.class_Id = ?");
+
+    $statement->execute(array($id));
+    $weenie = $statement->fetch(PDO::FETCH_ASSOC);
+    
+    return $weenie;
 }
 
 function getMinDamage($damage, $variance) {
@@ -2558,3 +2653,19 @@ const MOTION_STANCES = array(
     2147483963 => "AtlatlCombat",
     2147483964 => "ThrownShieldCombat"
 );
+
+function getPageVariable($key, $defaultValue) {
+    $returner = $defaultValue;
+
+    if (isset($_SESSION[$key])) {
+        $returner = $_SESSION[$key];
+    }
+
+    if (isset($_GET[$key])) {
+        $returner = $_GET[$key];
+    }
+
+    $_SESSION[$key] = $returner;
+    
+    return $returner;
+}

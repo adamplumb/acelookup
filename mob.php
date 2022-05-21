@@ -462,8 +462,8 @@ if ($wieldedItems) {
 <thead>
     <tr>
         <th>ID</th>
-        <th>Code</th>
         <th>Name</th>
+        <th>Code</th>
         <th>Probability</th>
         <th>Damage Type</th>
         <th>Damage</th>
@@ -477,8 +477,8 @@ if ($wieldedItems) {
 ?>
     <tr>
         <td><?php echo $item['id']; ?></td>
+        <td><a href="crafting.php?id=<?php echo $item['id']; ?>"><?php echo $item['name']; ?></a></td>
         <td><?php echo $item['code']; ?></td>
-        <td><?php echo $item['name']; ?></td>
         <td><?php echo round(100 * $item['probability'], 2); ?>%</td>
         <td><?php echo $item['damageType']; ?></td>
         <td>

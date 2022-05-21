@@ -1,5 +1,6 @@
 <?php
 ini_set('display_errors', 'on');
+session_start();
 
 include_once 'util.php';
 
@@ -39,7 +40,7 @@ function getRoundedPercentage($val) {
     return round(100 * $val) . '%';
 }
 
-$attributeValue = isset($_GET['attributeValue']) ? $_GET['attributeValue'] : 200;
+$attributeValue = getPageVariable('attributeValue', 200);
 
 $floats = getFloats($weaponId);
 $ints = getInts($weaponId);
@@ -147,7 +148,7 @@ $lastDamageObj = $buffedDamageObj;
  * CALCULATE POWER-LEVEL DAMAGE
  */
 
-$powerLevel = isset($_GET['powerLevel']) ? $_GET['powerLevel'] : 1;
+$powerLevel = getPageVariable('powerLevel', 1);
 $powerMod = getPowerMod($powerLevel, false);
 $beforePowerDamageObj = $lastDamageObj;
 $powerDamageObj = getDamageObj($lastDamageObj['max'], $variance, $powerMod);
@@ -157,7 +158,7 @@ $lastDamageObj = $powerDamageObj;
  * CALCULATE DAMAGE-RATING
  */
  
-$damageRating = isset($_GET['damageRating']) ? $_GET['damageRating'] : 5;
+$damageRating = getPageVariable('damageRating', 5);
 $damageRatingMod = (100 + $damageRating) / 100;
 $beforeDRDamageObj = $lastDamageObj;
 $damageRatingObj = getDamageObj($lastDamageObj['max'], $variance, $damageRatingMod);
@@ -182,7 +183,7 @@ $lastDamageObj = $attributeDamageObj;
  * CALCULATE CREATURE-BASED DAMAGE + ARMOR MITIGATIONS
  */
 
-$creatureId = isset($_GET['creatureId']) ? $_GET['creatureId'] : 1610;
+$creatureId = getPageVariable('creatureId', 1610); // ravener
 $creature = getCreature($creatureId);
 $creatureFloats = getFloats($creatureId);
 $creatureInts = getInts($creatureId);
@@ -191,6 +192,21 @@ $creatureType = CREATURE_TYPE[$creatureInts[PropertyInt::CreatureType]];
 $creatureBodyArmor = getBodyArmor($creatureId);
 $creatureHealth = $creatureAttributes2nd[PropertyAttribute2nd::MaxHealth];
 $creatureRegenRates = getRegenRates($creatureFloats);
+$creatureWieldedShields = getWieldedShields($creatureId);
+
+$creatureShieldOptions = array();
+
+if ($creatureWieldedShields) {    
+    foreach ($creatureWieldedShields as $shield) {
+        $creatureShieldOptions[] = array(
+            'shieldId'      => $shield['id'],
+            'name'          => $shield['name'] . ' (' . $shield['armorLevel'] . ' AL)',
+            'probability'  => $shield['probability']
+        );
+    }
+
+    $creatureShieldOptions[] = array('shieldId' => '', 'name' => 'No Shield or hit from behind (0 AL)');
+}
 
 /**
  * CALCULATE CREATURE-BASED SLAYER DAMAGE
@@ -226,13 +242,6 @@ if ($bodyPart && isset($creatureBodyArmor[$bodyPart])) {
 }
 
 $creatureBodyPartArmorLevel = $creatureBodyArmor[$creatureBodyPart]['base_Armor'];
-$creatureBaseArmorMod = round(calcArmorMod($creatureBodyPartArmorLevel), 4);
-if ($phantasmal) {
-    $creatureBaseArmorMod = 1;
-}
-
-$beforeCreatureBaseArmorDamageObj = $lastDamageObj;
-$creatureBaseArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureBaseArmorMod);
 
 $effectiveArmorObj = getEffectiveArmorObj(
     $creatureFloats,
@@ -244,7 +253,7 @@ $effectiveArmorObj = getEffectiveArmorObj(
     isset($bools[PropertyBool::IgnoreMagicResist]),
     $phantasmal
 );
-$creatureArmorMod = $effectiveArmorObj['calculatedArmorMod'];
+$creatureArmorMod = $effectiveArmorObj['armorMod'];
 
 $creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureArmorMod);
 $beforeCreatureArmorDamageObj = $lastDamageObj;
@@ -255,21 +264,78 @@ $lastDamageObj = $beforeCreatureArmorDamageObj;
  */
 
 $maxSpellLevel = getMaxSpellLevel($spells);
+$weaponIgnoreMagicArmor = isset($bools[PropertyBool::IgnoreMagicArmor]);
+$weaponIgnoreMagicResist = isset($bools[PropertyBool::IgnoreMagicResist]);
+$armorAddedFromEnchantment = 0;
 $armorCleavingMod = getArmorCleavingMod($hasArmorCleaving, $maxSpellLevel);
 $effectiveArmorCleavingObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
     $damageType,
-    0,
+    $armorAddedFromEnchantment,
     $armorCleavingMod,
-    isset($bools[PropertyBool::IgnoreMagicArmor]),
-    isset($bools[PropertyBool::IgnoreMagicResist]),
+    $weaponIgnoreMagicArmor,
+    $weaponIgnoreMagicResist,
     $phantasmal
 );
-$armorCleavingArmorMod = $effectiveArmorCleavingObj['calculatedArmorMod'];
+$armorCleavingArmorMod = $effectiveArmorCleavingObj['armorMod'];
 $armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $variance, $armorCleavingArmorMod);
 $beforeArmorCleavingDamageObj = $beforeCreatureArmorDamageObj;
 $lastDamageObj = $armorCleavingDamageObj;
+
+/**
+ * CALCULATE SHIELD DAMAGE
+ */
+
+// If no shield choice is made and there is an available shield
+// choose first available shield if probability is >50%
+$shieldId = null;
+$shield = null;
+if (isset($_GET['shieldId']) && $_GET['shieldId'] > 0) {
+    $shieldId = $_GET['shieldId'];
+} else if ($creatureShieldOptions && $creatureShieldOptions[0]['probability'] >= 0.5) {
+    $shieldId = $creatureShieldOptions[0]['shieldId'];
+}
+
+if ($shieldId > 0) {
+    $shield = getWeenie($shieldId);
+}
+
+$shieldMod = 1;
+$shieldEffectiveArmorLevel = 0;
+$ignoreShieldValue = 0;
+if (isset($floats[PropertyFloat::IgnoreShield])) {
+    $ignoreShieldValue = $floats[PropertyFloat::IgnoreShield];
+}
+
+$shieldModObj = null;
+$ignoreShieldMod = 0;
+
+if ($shield) {
+    $shieldFloats = getFloats($shieldId);
+    $shieldInts = getInts($shieldId);
+    $shieldArmorLevel = $shieldInts[PropertyInt::ArmorLevel];
+    $shieldArmorAddedFromEnchantment = 0;
+
+    $shieldModObj = getShieldModObj(
+        $shieldFloats,
+        $shieldArmorLevel,
+        $damageType,
+        $shieldArmorAddedFromEnchantment,
+        $ignoreShieldValue,
+        $weaponIgnoreMagicArmor,
+        $weaponIgnoreMagicResist,
+        $phantasmal
+    );
+    
+    $shieldMod = round($shieldModObj['shieldMod'], 4);
+    $shieldEffectiveArmorLevel = $shieldModObj['effectiveArmorLevelAfterIgnore'];
+    $ignoreShieldMod = $shieldModObj['ignoreShieldMod'];
+}
+
+$beforeShieldDamageObj = $lastDamageObj;
+$shieldDamageObj = getDamageObj($beforeShieldDamageObj['max'], $variance, $shieldMod);
+$lastDamageObj = $shieldDamageObj;
 
 /**
  * CALCULATE CREATURE-BASED RESISTANCE MITIGATIONS
@@ -303,7 +369,7 @@ $lastDamageObj = $weaponResistanceCleavingDamageObj;
  * SIMULATE FINAL DAMAGE WITH CRITS
  */
 
-$criticalDamageRating = isset($_GET['criticalDamageRating']) ? $_GET['criticalDamageRating'] : 0;
+$criticalDamageRating = getPageVariable('criticalDamageRating', 0);
 $criticalDamageRatingMod = (100 + $criticalDamageRating + $damageRating) / 100;
 
 $criticalMultipler = isset($floats[PropertyFloat::CriticalMultiplier]) ? $floats[PropertyFloat::CriticalMultiplier] : 1;
@@ -330,7 +396,7 @@ print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
 print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
 print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
 */
-$finalCritDamagePerHit = round($critDamageBeforeMitigation * $creatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod);
+$finalCritDamagePerHit = round($critDamageBeforeMitigation * $creatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
 /*
 print "creatureArmorMod: " . $creatureArmorMod . "<br />";
 print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
@@ -674,7 +740,7 @@ foreach ($powerLevelOptions as $loopPowerLevel) {
 
 <h3>Creature</h3>
 
-<input type="text" id="creatureSearch" onKeyUp="onCreatureInputKeyUp()" value="" placeholder="Starting typing a creature name to choose one" size="40" />
+<input type="text" id="creatureSearch" onKeyUp="onCreatureInputKeyUp()" autocomplete="off" value="" placeholder="Starting typing a creature name to choose one" size="40" />
 <input type="hidden" name="creatureId" value="<?php echo $creatureId; ?>" id="creature-id" />
 <div id="creature-results" class="typeahead"></div>
 <br /><br />
@@ -762,6 +828,14 @@ foreach ($creatureBodyArmor as $loopBodyPart => $loopBodyPartInfo) {
         <input type="submit" value="Update" />
     </td>
 </tr>
+
+<tr><td colspan="2"></td></tr>
+<tr>
+    <th><?php echo $damageType; ?>-specific armor multiplier</th>
+    <td>
+        <?php echo getPercentage($effectiveArmorObj['armorModVsType']); ?>
+    </td>
+</tr>
 <?php
 if ($phantasmal) {
 ?>
@@ -772,13 +846,6 @@ if ($phantasmal) {
 <?php
 }
 ?>
-<tr><td colspan="2"></td></tr>
-<tr>
-    <th><?php echo $damageType; ?>-specific armor multiplier</th>
-    <td>
-        <?php echo getPercentage($effectiveArmorObj['armorModVsType']); ?>
-    </td>
-</tr>
 <tr>
     <th>Effective AL for <?php echo $damageType; ?></th>
     <td>
@@ -857,6 +924,98 @@ No effects from Armor Cleaving
 </table>
 
 
+<h3>Applying the effects of creature shield protections</h3>
+<?php
+if (count($creatureShieldOptions) > 0) {
+?>
+<table class="vertical-table">
+<tr>
+    <th>Shield</th>
+    <td>
+        <select name="shieldId">
+<?php
+    foreach ($creatureShieldOptions as $info) {
+?>
+            <option value="<?php echo $info['shieldId']; ?>"<?php echo ($info['shieldId'] == $shieldId ? ' selected' : ''); ?>><?php echo $info['name']; ?></option>
+<?php
+    }
+?>
+        </select>
+        
+        <input type="submit" value="Update" />
+    </td>
+</tr>
+<tr><td colspan="2"></td></tr>
+
+<?php
+    if ($shield) {
+?>
+<tr>
+    <th>Damage before Shield <i>(Avg)</i></th>
+    <td>
+        <?php echo $beforeShieldDamageObj['min']; ?> - <?php echo $beforeShieldDamageObj['max']; ?>
+        <i>(<?php echo $beforeShieldDamageObj['avg']; ?>)</i>
+    </td>
+</tr>
+<tr><td colspan="2"></td></tr>
+
+<tr>
+    <th><?php echo $damageType; ?>-specific shield multiplier</th>
+    <td>
+        <?php echo getPercentage($shieldModObj['armorModVsType']); ?>
+    </td>
+</tr>
+<?php
+    if ($phantasmal) {
+?>
+<tr>
+    <th>Weapon Has Phantasmal Property?</th>
+    <td>Yes, all shield armor is ignored</td>
+</tr>
+<?php
+    }
+    if ($ignoreShieldValue) {
+?>
+<tr>
+    <th>Weapon is Shield Hollow?</th>
+    <td>Yes, weapon ignores <?php echo getPercentage($ignoreShieldValue); ?> of shield armor</td>
+</tr>
+<?php
+    }
+?>
+<tr>
+    <th>Effective AL for <?php echo $damageType; ?></th>
+    <td>
+        <?php echo $shieldModObj['effectiveArmorLevelAfterIgnore']; ?>
+    </td>
+</tr>
+<tr><td colspan="2"></td></tr>
+
+<tr>
+    <th>Shield Modifier for <?php echo $damageType; ?></th>
+    <td>
+        <?php echo getPercentage($shieldMod); ?>
+    </td>
+</tr>
+<tr>
+    <th>Damage after Shield <i>(Avg)</i></th>
+    <td>
+        <?php echo $shieldDamageObj['min']; ?> - <?php echo $shieldDamageObj['max']; ?>
+        <i>(<?php echo $shieldDamageObj['avg']; ?>)</i>
+    </td>
+</tr>
+</table>
+<?php
+    } else {
+?>
+    </table>
+    <p>This creature is not wielding a shield or was struck from behind.  No effect.</p>
+<?php
+    }
+} else {
+    print "<p>This creature does not have an available shield.</p>";
+}
+?>
 
 <h3>Applying the effects of innate creature resistance to <?php echo $damageType; ?></h3>
 <table class="vertical-table">
