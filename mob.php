@@ -467,6 +467,7 @@ if ($wieldedItems) {
         <th>Probability</th>
         <th>Damage Type</th>
         <th>Damage</th>
+        <th>AL</th>
         <th>Links</th>
     </tr>
 </thead>
@@ -480,7 +481,16 @@ if ($wieldedItems) {
         <td><?php echo $item['name']; ?></td>
         <td><?php echo round(100 * $item['probability'], 2); ?>%</td>
         <td><?php echo $item['damageType']; ?></td>
-        <td><?php echo $item['minDamage']; ?> - <?php echo $item['damage']; ?></td>
+        <td>
+<?php
+        if ($item['damage']) {
+?>
+            <?php echo $item['minDamage']; ?> - <?php echo $item['damage']; ?>
+<?php
+        }
+?>
+        </td>
+        <td><?php echo $item['armorLevel']; ?></td>
         <td>
             <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $item['name']); ?>" target="acpedia">ACPedia</a>
             /

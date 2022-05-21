@@ -692,17 +692,20 @@ function getWieldedItems($weenieId) {
                                     wps.value name,
                                     wpi.value damageType,
                                     wpiD.value damage,
-                                    wpfDv.value damageVariance
+                                    wpfDv.value damageVariance,
+                                    wpAL.value armorLevel
                                 from
                                     weenie_properties_d_i_d wdid 
                                     join treasure_wielded tw on (wdid.value = tw.treasure_Type and wdid.type = 32)
                                     join weenie on weenie.class_Id = tw.weenie_Class_Id
                                     join weenie_properties_string wps on (wps.object_Id = weenie.class_Id and wps.type = 1) 
-                                    join weenie_properties_int wpi on (wpi.object_Id = weenie.class_Id and wpi.type = 45)
-                                    join weenie_properties_int wpiD on (wpiD.object_Id = weenie.class_id and wpiD.type = 44)
-                                    join weenie_properties_float wpfDv on (wpfDv.object_Id = weenie.class_id and wpfDv.type = 22)
+                                    left join weenie_properties_int wpi on (wpi.object_Id = weenie.class_Id and wpi.type = 45)
+                                    left join weenie_properties_int wpiD on (wpiD.object_Id = weenie.class_id and wpiD.type = 44)
+                                    left join weenie_properties_float wpfDv on (wpfDv.object_Id = weenie.class_id and wpfDv.type = 22)
+                                    left join weenie_properties_int wpAL on (wpAL.object_Id = weenie.class_Id and wpAL.type = 28)
                                 where
-                                    wdid.object_Id = ?");
+                                    wdid.object_Id = ?
+                                order by probability desc");
     $statement->execute(array($weenieId));
 
     $items = array();
@@ -712,9 +715,10 @@ function getWieldedItems($weenieId) {
             'name'  => $row['name'],
             'probability' => $row['probability'],
             'code'      => $row['code'],
-            'damageType' => getDamageTypeLabel($row['damageType']),
+            'damageType' => $row['damage'] > 0 ? getDamageTypeLabel($row['damageType']) : '',
             'damage'    => $row['damage'],
-            'minDamage' => getMinDamage($row['damage'], $row['damageVariance'])
+            'minDamage' => getMinDamage($row['damage'], $row['damageVariance']),
+            'armorLevel'    => $row['armorLevel']
         );
     }
     
@@ -2507,4 +2511,50 @@ const IMBUED_EFFECTS = array(
     536870912 => "IgnoreSomeMagicProjectileDamage",
     1073741824 => "AlwaysCritical",
     2147483648 => "IgnoreAllArmor",
+);
+
+const COMBAT_STYLES = array(
+    0 => "Undef",
+    1 => "Unarmed",
+    2 => "OneHanded",
+    4 => "OneHandedAndShield",
+    8 => "TwoHanded",
+    16 => "Bow",
+    32 => "Crossbow",
+    64 => "Sling",
+    128 => "ThrownWeapon",
+    256 => "DualWield",
+    512 => "Magic",
+    1024 => "Atlatl",
+    2048 => "ThrownShield",
+    4096 => "Reserved1",
+    8192 => "Reserved2",
+    16384 => "Reserved3",
+    32768 => "Reserved4",
+    65536 => "StubbornMagic",
+    131072 => "StubbornProjectile",
+    262144 => "StubbornMelee",
+    524288 => "StubbornMissile",
+);
+
+const MOTION_STANCES = array(
+    2147483648 => "Invalid",
+    2147483708 => "HandCombat",
+    2147483709 => "NonCombat",
+    2147483710 => "SwordCombat",
+    2147483711 => "BowCombat",
+    2147483712 => "SwordShieldCombat",
+    2147483713 => "CrossbowCombat",
+    2147483714 => "UnusedCombat",
+    2147483715 => "SlingCombat",
+    2147483716 => "TwoHandedSwordCombat",
+    2147483717 => "TwoHandedStaffCombat",
+    2147483718 => "DualWieldCombat",
+    2147483719 => "ThrownWeaponCombat",
+    2147483720 => "Graze",
+    2147483721 => "Magic",
+    2147483880 => "BowNoAmmo",
+    2147483881 => "CrossBowNoAmmo",
+    2147483963 => "AtlatlCombat",
+    2147483964 => "ThrownShieldCombat"
 );
