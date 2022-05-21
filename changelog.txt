@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2022-05-21
+- Add shield listing and add shield mod effects
+- Fix mob page to show shields in the wielded items list
+- Make some page variables persist in the session
+
+2022-05-20
+- Add new weapon comparison page
+
 2022-04-25
 - Fix incorrect damage reduction averages when there is an offense-only body part (like olthoi breath)
 - Fix incorrect html tag for empty mob drop items list
