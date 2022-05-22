@@ -243,11 +243,24 @@ if ($bodyPart && isset($creatureBodyArmor[$bodyPart])) {
 
 $creatureBodyPartArmorLevel = $creatureBodyArmor[$creatureBodyPart]['base_Armor'];
 
+$imperilValue = getPageVariable('imperilValue', 0);
+$imperilOptions = array(
+    '0'     => 'None',
+    '-20'   => 'Imperil I',
+    '-50'   => 'Imperil II',
+    '-75'   => 'Imperil III',
+    '-100'   => 'Imperil IV',
+    '-150'   => 'Imperil V',
+    '-200'   => 'Imperil VI',
+    '-225'   => 'Imperil VII',
+    '-225'   => 'Imperil VIII'
+);
+
 $effectiveArmorObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
     $damageType,
-    0,
+    $imperilValue,
     1,
     isset($bools[PropertyBool::IgnoreMagicArmor]),
     isset($bools[PropertyBool::IgnoreMagicResist]),
@@ -828,7 +841,22 @@ foreach ($creatureBodyArmor as $loopBodyPart => $loopBodyPartInfo) {
         <input type="submit" value="Update" />
     </td>
 </tr>
-
+<tr>
+    <th>Imperil Spell</th>
+    <td>
+        <select name="imperilValue">
+<?php
+foreach ($imperilOptions as $val => $label) {
+?>
+            <option value="<?php echo $val; ?>"<?php echo ($val == $imperilValue ? ' selected' : ''); ?>><?php echo $label; ?> (<?php echo $val; ?> AL)</option>
+<?php
+}
+?>
+        </select>
+        
+        <input type="submit" value="Update" />
+    </td>
+</tr>
 <tr><td colspan="2"></td></tr>
 <tr>
     <th><?php echo $damageType; ?>-specific armor multiplier</th>
