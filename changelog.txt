@@ -5,6 +5,7 @@ Changelog
 - Add shield listing and add shield mod effects
 - Fix mob page to show shields in the wielded items list
 - Make some page variables persist in the session
+- Add imperil spellcasting effects
 
 2022-05-20
 - Add new weapon comparison page
