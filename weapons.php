@@ -401,20 +401,20 @@ $combinedCritDamageRatingMod = (100 + $combinedCritDamageRating) / 100;
 
 $critDamageBeforeMitigation = $buffedDamageObj['max'] * $attributeMod * $powerMod * $effectiveSlayerMod * $combinedCritDamageRatingMod * $weaponCriticalDamageMod;
 
-print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
-print "attributeMod: " . $attributeMod . "<br />";
-print "powerMod: " . $powerMod . "<br />";
-print "effectiveSlayerMod: " . $effectiveSlayerMod . "<br />";
-print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
-print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
-print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
+//print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
+//print "attributeMod: " . $attributeMod . "<br />";
+//print "powerMod: " . $powerMod . "<br />";
+//print "effectiveSlayerMod: " . $effectiveSlayerMod . "<br />";
+//print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
+//print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
+//print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
 
 $finalCritDamagePerHit = round($critDamageBeforeMitigation * $creatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
 
-print "creatureArmorMod: " . $creatureArmorMod . "<br />";
-print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
-print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
-print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
+//print "creatureArmorMod: " . $creatureArmorMod . "<br />";
+//print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
+//print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
+//print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
 
 $simulatedCritTotalDamage = $finalCritDamagePerHit * $numCritHits;
 
