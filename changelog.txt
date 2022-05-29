@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2022-05-29
+- Fix non-crit damage calculation when applying imperil
+
 2022-05-21
 - Add shield listing and add shield mod effects
 - Fix mob page to show shields in the wielded items list

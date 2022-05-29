@@ -266,6 +266,7 @@ $effectiveArmorObj = getEffectiveArmorObj(
     isset($bools[PropertyBool::IgnoreMagicResist]),
     $phantasmal
 );
+
 $creatureArmorMod = $effectiveArmorObj['armorMod'];
 
 $creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureArmorMod);
@@ -279,21 +280,20 @@ $lastDamageObj = $beforeCreatureArmorDamageObj;
 $maxSpellLevel = getMaxSpellLevel($spells);
 $weaponIgnoreMagicArmor = isset($bools[PropertyBool::IgnoreMagicArmor]);
 $weaponIgnoreMagicResist = isset($bools[PropertyBool::IgnoreMagicResist]);
-$armorAddedFromEnchantment = 0;
 $armorCleavingMod = getArmorCleavingMod($hasArmorCleaving, $maxSpellLevel);
 $effectiveArmorCleavingObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
     $damageType,
-    $armorAddedFromEnchantment,
+    $imperilValue,
     $armorCleavingMod,
     $weaponIgnoreMagicArmor,
     $weaponIgnoreMagicResist,
     $phantasmal
 );
 $armorCleavingArmorMod = $effectiveArmorCleavingObj['armorMod'];
-$armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $variance, $armorCleavingArmorMod);
-$beforeArmorCleavingDamageObj = $beforeCreatureArmorDamageObj;
+$armorCleavingDamageObj = getDamageObj($lastDamageObj['max'], $variance, $armorCleavingArmorMod);
+$beforeArmorCleavingDamageObj = $lastDamageObj;
 $lastDamageObj = $armorCleavingDamageObj;
 
 /**
@@ -400,7 +400,7 @@ $combinedCritDamageRating = $damageRating + $criticalDamageRating;
 $combinedCritDamageRatingMod = (100 + $combinedCritDamageRating) / 100;
 
 $critDamageBeforeMitigation = $buffedDamageObj['max'] * $attributeMod * $powerMod * $effectiveSlayerMod * $combinedCritDamageRatingMod * $weaponCriticalDamageMod;
-/*
+
 print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
 print "attributeMod: " . $attributeMod . "<br />";
 print "powerMod: " . $powerMod . "<br />";
@@ -408,14 +408,14 @@ print "effectiveSlayerMod: " . $effectiveSlayerMod . "<br />";
 print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
 print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
 print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
-*/
+
 $finalCritDamagePerHit = round($critDamageBeforeMitigation * $creatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
-/*
+
 print "creatureArmorMod: " . $creatureArmorMod . "<br />";
 print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
 print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
 print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
-*/
+
 $simulatedCritTotalDamage = $finalCritDamagePerHit * $numCritHits;
 
 $simulatedMinDamage = $simulatedNonCritMinDamage + $simulatedCritTotalDamage;
@@ -842,6 +842,20 @@ foreach ($creatureBodyArmor as $loopBodyPart => $loopBodyPartInfo) {
     </td>
 </tr>
 <tr>
+    <th><?php echo $damageType; ?>-specific armor multiplier</th>
+    <td>
+        <?php echo getPercentage($effectiveArmorObj['armorModVsType']); ?>
+    </td>
+</tr>
+<tr>
+    <th>Effective AL for <?php echo $damageType; ?> before Imperil</th>
+    <td>
+        <?php echo $effectiveArmorObj['armorVsType']; ?>
+    </td>
+</tr>
+<tr><td colspan="2"></td></tr>
+
+<tr>
     <th>Imperil Spell</th>
     <td>
         <select name="imperilValue">
@@ -857,13 +871,7 @@ foreach ($imperilOptions as $val => $label) {
         <input type="submit" value="Update" />
     </td>
 </tr>
-<tr><td colspan="2"></td></tr>
-<tr>
-    <th><?php echo $damageType; ?>-specific armor multiplier</th>
-    <td>
-        <?php echo getPercentage($effectiveArmorObj['armorModVsType']); ?>
-    </td>
-</tr>
+
 <?php
 if ($phantasmal) {
 ?>
@@ -875,7 +883,7 @@ if ($phantasmal) {
 }
 ?>
 <tr>
-    <th>Effective AL for <?php echo $damageType; ?></th>
+    <th>Effective AL for <?php echo $damageType; ?> after Imperil</th>
     <td>
         <?php echo $effectiveArmorObj['effectiveArmorLevel']; ?>
     </td>
