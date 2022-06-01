@@ -126,7 +126,6 @@ if (isset($dataIds[PropertyDataId::ProcSpell])) {
         }
     }
 }
-print "castOnStrikeImperil: " . $castOnStrikeImperilValue . "\n";
 
 $finalWeaponOffense = $weaponOffense;
 if (isset($spellEffects[PropertyFloat::WeaponAuraOffense])) {
