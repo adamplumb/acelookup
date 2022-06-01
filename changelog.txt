@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2022-06-01
+- Add support for CastOnStrike imperils
+- Fixed display issues with non-base skill wield requirements
+
 2022-05-29
 - Fix non-crit damage calculation when applying imperil
 

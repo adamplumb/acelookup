@@ -272,6 +272,22 @@ function getSpellBook($weenieId) {
     return $spellBook;
 }
 
+function getSpell($spellId) {
+    global $dbh;
+
+    $statement = $dbh->prepare("select 
+                                    s.id id,
+                                    s.name name,
+                                    s.stat_Mod_Type,
+                                    s.stat_Mod_Key,
+                                    s.stat_Mod_Val
+                                from spell s
+                                where s.id = ?");
+    $statement->execute(array($spellId));
+    
+    return $statement->fetch(PDO::FETCH_ASSOC);
+}
+
 function getMaxSpellLevel($spellBook) {
     $maxSpellLevel = 0;
     
@@ -2063,6 +2079,10 @@ class PropertyDataId {
     const PCAPPhysicsDIDDataTemplatedFrom  = 8044;
 }
 
+class StatModType {
+    const Armor = 41088;
+}
+
 class PropertyString {
     const Name = 1;
     const UseProp = 14;
@@ -2538,6 +2558,16 @@ const DefaultNonMagicalChanceTable = [
     array('itemType' => TreasureItemType::Dinnerware, 'probability' => 0.08)
 ];
 
+class WieldRequirement {
+    const Skill = 1;
+    const RawSkill = 2;
+    const Attrib = 3;
+    const RawAttrib = 4;
+    const SecondaryAttrib = 5;
+    const RawSecondaryAttrib = 6;
+    const Level = 7;
+}
+
 const WIELD_REQUIREMENTS = [
     'Invalid',
     'Skill',
@@ -2554,16 +2584,46 @@ const WIELD_REQUIREMENTS = [
     'HeritageType'
 ];
 
+const WIELD_REQUIREMENT_WORD = array(
+    'Skill'         => 'buffed',
+    'RawSkill'      => 'base',
+    'Attrib'        => 'buffed',
+    'RawAttrib'     => 'base',
+    'SecondaryAttrib' => 'buffed',
+    'RawSecondaryAttrib' => 'base',
+    'Level'         => ''
+);
+
 /**
  * const WieldRequirements                        = 158;
  * const WieldSkillType                           = 159;
  * const WieldDifficulty                          = 160;
  */
 function getWieldRequirementDisplay($requirement, $skillType, $difficulty) {
-    $skillWord = 'base';
-    $skill = SKILLS_LIST[$skillType];
+    $requirementLabel = WIELD_REQUIREMENTS[$requirement];
     
-    return "Your ${skillWord} ${skill} must be at least ${difficulty} to wield this item.";
+    $skillWord = '';
+    if (isset(WIELD_REQUIREMENT_WORD[$requirementLabel])) {
+        $skillWord = WIELD_REQUIREMENT_WORD[$requirementLabel] . ' ';
+    }
+    
+    $skill = '';
+    switch ($requirementLabel) {
+        case 'Skill':
+        case 'RawSkill':
+            $skill = SKILLS_LIST[$skillType];
+            break;
+            
+        case 'Level':
+            $skill = 'level';
+            break;
+            
+        case 'CreatureType':
+            $creatureType = CREATURE_TYPE[$skillType];
+            return 'You must be a ' . $creatureType . ' to wield this weapon';
+    }
+    
+    return "Your ${skillWord}${skill} must be at least ${difficulty} to wield this item.";
 }
 
 const WEAPON_TYPES = [

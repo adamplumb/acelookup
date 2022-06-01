@@ -46,6 +46,7 @@ $floats = getFloats($weaponId);
 $ints = getInts($weaponId);
 $bools = getBools($weaponId);
 $strings = getStrings($weaponId);
+$dataIds = getDataIds($weaponId);
 $spells = getSpellBook($weaponId);
 /*
 print_r($weapon);
@@ -57,6 +58,8 @@ print "bools\n";
 print_r($bools);
 print "strings\n";
 print_r($strings);
+print "dataIds\n";
+print_r($dataIds);
 print "spells\n";
 print_r($spells);
 */
@@ -112,6 +115,18 @@ if (@IMBUED_EFFECTS[$imbuedEffectValue]) {
     $imbuedEffect = IMBUED_EFFECTS[$imbuedEffectValue];
 }
 
+$castOnStrikeSpell = null;
+$castOnStrikeImperilValue = 0;
+if (isset($dataIds[PropertyDataId::ProcSpell])) {
+    $castOnStrikeSpellId = $dataIds[PropertyDataId::ProcSpell];
+    $castOnStrikeSpell = getSpell($castOnStrikeSpellId);
+    if ($castOnStrikeSpell) {
+        if ($castOnStrikeSpell['stat_Mod_Type'] == StatModType::Armor) {
+            $castOnStrikeImperilValue  = $castOnStrikeSpell['stat_Mod_Val'];
+        }
+    }
+}
+print "castOnStrikeImperil: " . $castOnStrikeImperilValue . "\n";
 
 $finalWeaponOffense = $weaponOffense;
 if (isset($spellEffects[PropertyFloat::WeaponAuraOffense])) {
@@ -256,11 +271,13 @@ $imperilOptions = array(
     '-225'   => 'Imperil VIII'
 );
 
+$effectiveImperilValue = min($imperilValue, $castOnStrikeImperilValue);
+
 $effectiveArmorObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
     $damageType,
-    $imperilValue,
+    $effectiveImperilValue,
     1,
     isset($bools[PropertyBool::IgnoreMagicArmor]),
     isset($bools[PropertyBool::IgnoreMagicResist]),
@@ -285,7 +302,7 @@ $effectiveArmorCleavingObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
     $damageType,
-    $imperilValue,
+    $effectiveImperilValue,
     $armorCleavingMod,
     $weaponIgnoreMagicArmor,
     $weaponIgnoreMagicResist,
@@ -459,6 +476,11 @@ if ($slayerCreatureType) {
 if ($phantasmal) {
     $specialProperties[] = '<a href="http://acpedia.org/wiki/Phantasmal" target="acpedia" title="Weapon does greater damage against this creature type">Phantasmal</a>';    
 }
+if ($castOnStrikeSpell) {
+    $first = '<a href="http://acpedia.org/wiki/Cast_on_Strike" target="acpedia" title="Weapon casts spell upon successful hit of creature">Cast on Strike</a>';
+    $second = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $castOnStrikeSpell['name']) . '" target="acpedia">' . $castOnStrikeSpell['name'] . '</a>';
+    $specialProperties[] = $first . ': ' . $second;
+}
 
 $powerLevelOptions = array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1);
 
@@ -586,14 +608,22 @@ if ($description) {
     </td>
 </tr>
 <?php
-if (isset($ints[PropertyInt::WieldRequirements])) {
+if (isset($ints[PropertyInt::WieldRequirements]) && isset($ints[PropertyInt::WieldDifficulty])) {
 ?>
 <tr>
     <th>Wield Requirements</th>
     <td><?php echo getWieldRequirementDisplay($ints[PropertyInt::WieldRequirements], $ints[PropertyInt::WieldSkillType], $ints[PropertyInt::WieldDifficulty]); ?></td>
 </tr>
 <?php
+} else if (isset($strings[PropertyString::UseProp])) {
+?>
+<tr>
+    <th>Wield Requirements</th>
+    <td><?php echo $strings[PropertyString::UseProp]; ?></td>
+</tr>
+<?php
 }
+
 if (isset($ints[PropertyInt::ItemDifficulty])) {
 ?>
 <tr>
@@ -872,6 +902,16 @@ foreach ($imperilOptions as $val => $label) {
     </td>
 </tr>
 
+<?php
+if ($castOnStrikeImperilValue) {
+?>
+<tr>
+    <th>Cast on Strike Imperil</th>
+    <td><?php echo $castOnStrikeImperilValue; ?> AL</td>
+</tr>
+<?php
+}
+?>
 <?php
 if ($phantasmal) {
 ?>
