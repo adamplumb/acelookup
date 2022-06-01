@@ -2603,7 +2603,7 @@ function getWieldRequirementDisplay($requirement, $skillType, $difficulty) {
     $requirementLabel = WIELD_REQUIREMENTS[$requirement];
     
     $skillWord = '';
-    if (isset(WIELD_REQUIREMENT_WORD[$requirementLabel])) {
+    if (array_key_exists($requirementLabel, WIELD_REQUIREMENT_WORD)) {
         $skillWord = WIELD_REQUIREMENT_WORD[$requirementLabel] . ' ';
     }
     
