@@ -238,11 +238,6 @@ if ($slayerCreatureType && $slayerCreatureType == $creatureType) {
     $effectiveSlayerMod = $slayerMod;
 }
 
-print "slayerDamageObj\n";
-print_r($slayerDamageObj);
-print "\nbeforeSlayerDamageObj\n";
-print_r($beforeSlayerDamageObj);
-
 /**
  * CALCULATE BODY ARMOR DAMAGE MITIGATION
  */
@@ -293,11 +288,6 @@ $creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatu
 $beforeCreatureArmorDamageObj = $lastDamageObj;
 $lastDamageObj = $creatureArmorDamageObj;
 
-print "creatureArmorDamageObj\n";
-print_r($creatureArmorDamageObj);
-print "\nbeforeCreatureArmorDamageObj\n";
-print_r($beforeCreatureArmorDamageObj);
-
 /**
  * CALCULATE ARMOR CLEAVING DAMAGE
  */
@@ -323,11 +313,6 @@ $armorCleavingArmorMod = $effectiveArmorCleavingObj['armorMod'];
 $armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $variance, $armorCleavingArmorMod);
 $beforeArmorCleavingDamageObj = $beforeCreatureArmorDamageObj;
 $lastDamageObj = $armorCleavingDamageObj;
-
-print "armorCleavingDamageObj\n";
-print_r($armorCleavingDamageObj);
-print "\nbeforeArmorCleavingDamageObj\n";
-print_r($beforeArmorCleavingDamageObj);
 
 /**
  * CALCULATE SHIELD DAMAGE
@@ -432,6 +417,7 @@ $simulatedNonCritMaxDamage = $lastDamageObj['max'] * $numNotCritHits;
 $combinedCritDamageRating = $damageRating + $criticalDamageRating;
 $combinedCritDamageRatingMod = (100 + $combinedCritDamageRating) / 100;
 
+// The cleaving mod replaces the regular one if available
 $effectiveCreatureArmorMod = $creatureArmorMod;
 if ($armorCleavingArmorMod) {
     $effectiveCreatureArmorMod = $armorCleavingArmorMod;
@@ -439,7 +425,7 @@ if ($armorCleavingArmorMod) {
 
 $critDamageBeforeMitigation = $buffedDamageObj['max'] * $attributeMod * $powerMod * $effectiveSlayerMod * $combinedCritDamageRatingMod * $weaponCriticalDamageMod;
 $finalCritDamagePerHit = round($critDamageBeforeMitigation * $effectiveCreatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
-
+/*
 print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
 print "attributeMod: " . $attributeMod . "<br />";
 print "powerMod: " . $powerMod . "<br />";
@@ -451,7 +437,7 @@ print "creatureArmorMod: " . $creatureArmorMod . "<br />";
 print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
 print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
 print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
-
+*/
 $simulatedCritTotalDamage = $finalCritDamagePerHit * $numCritHits;
 
 $simulatedMinDamage = $simulatedNonCritMinDamage + $simulatedCritTotalDamage;
