@@ -238,6 +238,10 @@ if ($slayerCreatureType && $slayerCreatureType == $creatureType) {
     $effectiveSlayerMod = $slayerMod;
 }
 
+print "slayerDamageObj\n";
+print_r($slayerDamageObj);
+print "\nbeforeSlayerDamageObj\n";
+print_r($beforeSlayerDamageObj);
 
 /**
  * CALCULATE BODY ARMOR DAMAGE MITIGATION
@@ -287,7 +291,12 @@ $creatureArmorMod = $effectiveArmorObj['armorMod'];
 
 $creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureArmorMod);
 $beforeCreatureArmorDamageObj = $lastDamageObj;
-$lastDamageObj = $beforeCreatureArmorDamageObj;
+$lastDamageObj = $creatureArmorDamageObj;
+
+print "creatureArmorDamageObj\n";
+print_r($creatureArmorDamageObj);
+print "\nbeforeCreatureArmorDamageObj\n";
+print_r($beforeCreatureArmorDamageObj);
 
 /**
  * CALCULATE ARMOR CLEAVING DAMAGE
@@ -307,10 +316,18 @@ $effectiveArmorCleavingObj = getEffectiveArmorObj(
     $weaponIgnoreMagicResist,
     $phantasmal
 );
+
+// This replaces the creature-armor stuff if present
+// so the starting damage should come from before the armor damage mod
 $armorCleavingArmorMod = $effectiveArmorCleavingObj['armorMod'];
-$armorCleavingDamageObj = getDamageObj($lastDamageObj['max'], $variance, $armorCleavingArmorMod);
-$beforeArmorCleavingDamageObj = $lastDamageObj;
+$armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $variance, $armorCleavingArmorMod);
+$beforeArmorCleavingDamageObj = $beforeCreatureArmorDamageObj;
 $lastDamageObj = $armorCleavingDamageObj;
+
+print "armorCleavingDamageObj\n";
+print_r($armorCleavingDamageObj);
+print "\nbeforeArmorCleavingDamageObj\n";
+print_r($beforeArmorCleavingDamageObj);
 
 /**
  * CALCULATE SHIELD DAMAGE
@@ -415,22 +432,25 @@ $simulatedNonCritMaxDamage = $lastDamageObj['max'] * $numNotCritHits;
 $combinedCritDamageRating = $damageRating + $criticalDamageRating;
 $combinedCritDamageRatingMod = (100 + $combinedCritDamageRating) / 100;
 
+$effectiveCreatureArmorMod = $creatureArmorMod;
+if ($armorCleavingArmorMod) {
+    $effectiveCreatureArmorMod = $armorCleavingArmorMod;
+}
+
 $critDamageBeforeMitigation = $buffedDamageObj['max'] * $attributeMod * $powerMod * $effectiveSlayerMod * $combinedCritDamageRatingMod * $weaponCriticalDamageMod;
+$finalCritDamagePerHit = round($critDamageBeforeMitigation * $effectiveCreatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
 
-//print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
-//print "attributeMod: " . $attributeMod . "<br />";
-//print "powerMod: " . $powerMod . "<br />";
-//print "effectiveSlayerMod: " . $effectiveSlayerMod . "<br />";
-//print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
-//print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
-//print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
-
-$finalCritDamagePerHit = round($critDamageBeforeMitigation * $creatureArmorMod * $creatureResistanceModVsType * $weaponResistanceCleavingMod * $shieldMod);
-
-//print "creatureArmorMod: " . $creatureArmorMod . "<br />";
-//print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
-//print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
-//print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
+print "buffedDamage: " . $buffedDamageObj['max'] . "<br />";
+print "attributeMod: " . $attributeMod . "<br />";
+print "powerMod: " . $powerMod . "<br />";
+print "effectiveSlayerMod: " . $effectiveSlayerMod . "<br />";
+print "combinedCritDamageRatingMod: " . $combinedCritDamageRatingMod . "<br />";
+print "weaponCriticalDamageMod: " . $weaponCriticalDamageMod. "<br />";
+print "critDamageBeforeMitigation: " . $critDamageBeforeMitigation . "<br />";
+print "creatureArmorMod: " . $creatureArmorMod . "<br />";
+print "creatureResistanceModVsType: " . $creatureResistanceModVsType . "<br />";
+print "weaponResistanceMod: " . $weaponResistanceCleavingMod . "<br />";
+print "finalCritDamagePerHit: " . $finalCritDamagePerHit . "<br />";
 
 $simulatedCritTotalDamage = $finalCritDamagePerHit * $numCritHits;
 
@@ -979,7 +999,7 @@ if ($hasArmorCleaving) {
 <tr>
     <th>Armor Cleaving Modifier</th>
     <td>
-        <span title="<?php echo 'Based on a max spell level of ' . $maxSpellLevel; ?>"><?php echo getPercentage($armorCleavingMod); ?></span>
+        <span title="<?php echo 'Based on a max spell level of ' . $maxSpellLevel; ?>"><?php echo getPercentage(round($armorCleavingArmorMod, 4)); ?></span>
     </td>
 </tr>
 <tr>
