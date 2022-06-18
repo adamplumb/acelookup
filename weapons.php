@@ -117,15 +117,18 @@ if (@IMBUED_EFFECTS[$imbuedEffectValue]) {
 
 $castOnStrikeSpell = null;
 $castOnStrikeImperilValue = 0;
+$castOnStrikeRate = 0;
 if (isset($dataIds[PropertyDataId::ProcSpell])) {
     $castOnStrikeSpellId = $dataIds[PropertyDataId::ProcSpell];
     $castOnStrikeSpell = getSpell($castOnStrikeSpellId);
     if ($castOnStrikeSpell) {
         if ($castOnStrikeSpell['stat_Mod_Type'] == StatModType::Armor) {
             $castOnStrikeImperilValue  = $castOnStrikeSpell['stat_Mod_Val'];
+            $castOnStrikeRate = $floats[PropertyFloat::ProcSpellRate];
         }
     }
 }
+
 
 $finalWeaponOffense = $weaponOffense;
 if (isset($spellEffects[PropertyFloat::WeaponAuraOffense])) {
@@ -483,7 +486,7 @@ if ($phantasmal) {
 }
 if ($castOnStrikeSpell) {
     $first = '<a href="http://acpedia.org/wiki/Cast_on_Strike" target="acpedia" title="Weapon casts spell upon successful hit of creature">Cast on Strike</a>';
-    $second = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $castOnStrikeSpell['name']) . '" target="acpedia">' . $castOnStrikeSpell['name'] . '</a>';
+    $second = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $castOnStrikeSpell['name']) . '" target="acpedia">' . $castOnStrikeSpell['name'] . ' (' . getPercentage($castOnStrikeRate) . ')</a>';
     $specialProperties[] = $first . ': ' . $second;
 }
 
@@ -911,7 +914,7 @@ foreach ($imperilOptions as $val => $label) {
 if ($castOnStrikeImperilValue) {
 ?>
 <tr>
-    <th>Cast on Strike Imperil</th>
+    <th>Cast on Strike Imperil (<?php echo getPercentage($castOnStrikeRate); ?>)</th>
     <td><?php echo $castOnStrikeImperilValue; ?> AL</td>
 </tr>
 <?php
