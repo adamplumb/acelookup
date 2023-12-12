@@ -48,6 +48,17 @@ $bools = getBools($weaponId);
 $strings = getStrings($weaponId);
 $dataIds = getDataIds($weaponId);
 $spells = getSpellBook($weaponId);
+
+/**
+ * Silifi of Crimson Night is weird and doesn't really have its own weenie
+ * When you make it, the existing Silifi of Crimson Stars is modified with the following changes
+ * https://github.com/ACEmulator/ACE-World-16PY-Patches/blob/master/Database/Patches/4%20CraftTable/07997%20Crimson%20Night%20Gem%20Setting.sql
+ */
+if ($weaponId == 34024) {
+    $floats[PropertyFloat::CriticalMultiplier] = 3;
+    $floats[PropertyFloat::ResistanceModifier] = 1;
+}
+
 /*
 print_r($weapon);
 print "floats\n";
