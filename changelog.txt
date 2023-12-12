@@ -1,8 +1,11 @@
 Changelog
 =========
 
+2023-12-12
+- Add CriticalMultiplier override for Silifi of Crimson Night
+
 2022-06-18
-- Add CastOnStrike proc rate
+- Add CastOnStrike proc rate (might be buggy)
 
 2022-06-01
 - Add support for CastOnStrike imperils
