@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2024-01-11
+- Added titles page lookup
+- Switched to acportalstorm.com/wiki for the wiki link
+- Removed yotesfan links, it is broken
+
 2023-12-12
 - Add CriticalMultiplier override for Silifi of Crimson Night
 

@@ -78,5 +78,7 @@ foreach ($groups as $name => $obj) {
 }
 ?>
 
+<?php include_once 'footer.php'; ?>
+
 </body>
 </html>
