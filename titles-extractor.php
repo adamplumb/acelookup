@@ -104,7 +104,9 @@ function extractSummaryTableInformation($title, $searchString, $lines, $type) {
         "xp" => "",
         "reqLevel" => "",
         "recLevel" => "",
-        "type" => ""
+        "type" => "",
+        "seasonal" => false,
+        "status" => "Verified"
     );
     
     // Title-specific hacks
@@ -185,7 +187,9 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
         "xp" => "",
         "reqLevel" => "",
         "recLevel" => "",
-        "type" => ""
+        "type" => "",
+        "seasonal" => false,
+        "status" => "Unverified"
     );
 
     $lastExperience = null;
@@ -253,6 +257,14 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
             if (preg_match("/Marketplace HearthSeeker ([0-9]+)\-[0-9]+ Quests/", $line, $matches)) {
                 $hearthSeeker = $matches[1];
             }
+        }
+        
+        if (!$returner['seasonal'] && str_contains($line, '/wiki/Seasonal_Quests')) {
+            $returner['seasonal'] = true;
+        }
+        
+        if (str_contains($line, '<b>Verified</b>')) {
+            $returner['status'] = 'Verified';
         }
     }
 
@@ -336,6 +348,10 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
             
         case "Broker Contracts":
             $returner['recLevel'] = 80;
+            break;
+            
+        case "Town Founder":
+            $returner['recLevel'] = 100;
             break;
     }
     

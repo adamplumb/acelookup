@@ -39,6 +39,7 @@ foreach ($groups as $name => $obj) {
         <th>Recommended Level</th>
         <th>XP</th>
         <th>Type</th>
+        <th>Notes</th>
     </tr>
 </thead>
 <tbody>
@@ -48,6 +49,15 @@ foreach ($groups as $name => $obj) {
         $rowClass = $index % 2 == 1 ? ' class="alt"' : '';
         $htmlTitle = str_replace(' ', '_', $titleObj->title);
         $htmlQuest = str_replace(' ', '_', $titleObj->quest);
+        
+        $notes = array();
+        if ($titleObj->status == 'Unverified') {
+            $notes[] = "Unverified";
+        }
+        if ($titleObj->seasonal) {
+            $notes[] = "Seasonal";
+        }
+
 ?>
 <tr<?php echo $rowClass; ?>>
     <td><a href="http://acportalstorm.com/wiki/<?php echo $htmlTitle; ?>" target="_new"><?php echo $titleObj->title; ?></a></td>
@@ -56,6 +66,7 @@ foreach ($groups as $name => $obj) {
     <td><?php echo $titleObj->recLvlMin; ?></td>
     <td><?php echo $titleObj->xp; ?></td>
     <td><?php echo $titleObj->type; ?></td>
+    <td><?php echo implode("<br />", $notes); ?></td>
 </tr>
 <?php
     }
