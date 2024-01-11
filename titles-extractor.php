@@ -353,6 +353,11 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
         case "Town Founder":
             $returner['recLevel'] = 100;
             break;
+            
+        case "Gauntlet Bosses":
+            $returner['recLevel'] = 180;
+            break;
+            
     }
     
     // Hack for pages like "Ritual of the Blight" that contain multiple titles and required levels
