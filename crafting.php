@@ -224,9 +224,7 @@ if (isset($ints[PropertyInt::MaxStackSize])) {
 <tr>
     <th>Links</th>
     <td>
-            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $item['name']); ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $item['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $item['name']); ?>" target="wiki">Wiki</a>
     </td>
 </tr>
 </table>
@@ -328,9 +326,7 @@ if ($creaturesThatDrop) {
         <td><?php echo CREATURE_TYPE[$row['type']]; ?></td>
         <td><?php echo round(100 * $row['chance'], 1); ?>%</td>
         <td>
-            <a href="http://acpedia.org/<?php echo $row['name']; ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $row['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo $row['name']; ?>" target="wiki">Wiki</a>
         </td>
     </tr>
 <?php

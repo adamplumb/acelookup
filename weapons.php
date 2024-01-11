@@ -465,39 +465,39 @@ $simulatedAvgDamage = round(($simulatedMinDamage + $simulatedMaxDamage) / 200);
 
 $specialProperties = array();
 if (isset($ints[PropertyInt::Attuned])) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Attuned" target="acpedia" title="The item cannot be dropped on the ground, handed to another player, or placed in a trade window.">Attuned</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Attuned" target="wiki" title="The item cannot be dropped on the ground, handed to another player, or placed in a trade window.">Attuned</a>';
 }
 if (isset($ints[PropertyInt::Bonded])) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Bonded" target="acpedia" title="A bonded item will not drop on death.">Bonded</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Bonded" target="wiki" title="A bonded item will not drop on death.">Bonded</a>';
 }
 if (isset($bools[PropertyBool::Ivoryable])) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Ivoryable" target="acpedia" title="You can apply a bag of Salvaged Ivory to allow the item to be muled, but not wielded by other characters">Ivoryable</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Ivoryable" target="wiki" title="You can apply a bag of Salvaged Ivory to allow the item to be muled, but not wielded by other characters">Ivoryable</a>';
 }
 if (isset($weaponResistanceCleavingType)) {
     $prop = "Resistance Cleaving: ${weaponResistanceCleavingType}";
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $prop) . '" target="acpedia" title="Causes extra damage against the creature of this damage type">' . $prop . '</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/' . str_replace(' ', '_', $prop) . '" target="wiki" title="Causes extra damage against the creature of this damage type">' . $prop . '</a>';
 }
 if ($hasArmorCleaving) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Armor_Cleaving" target="acpedia" title="Ignores some amount of creature armor based on max spell level">Armor Cleaving</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Armor_Cleaving" target="wiki" title="Ignores some amount of creature armor based on max spell level">Armor Cleaving</a>';
 }
 if ($criticalMultipler > 1) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Crushing_Blow" target="acpedia" title="Critical hits do extra damage">Crushing Blow</a>';    
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Crushing_Blow" target="wiki" title="Critical hits do extra damage">Crushing Blow</a>';    
 }
 if ($hasCriticalFrequencyMod) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Biting_Strike" target="acpedia" title="Higher chance of critical hits">Biting Strike</a>';    
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Biting_Strike" target="wiki" title="Higher chance of critical hits">Biting Strike</a>';    
 }
 if ($unenchantable) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Unenchantable" target="acpedia" title="Player spells cannot be cast on the item, though it might hav built-in enchantments">Unenchantable</a>';    
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Unenchantable" target="wiki" title="Player spells cannot be cast on the item, though it might hav built-in enchantments">Unenchantable</a>';    
 }
 if ($slayerCreatureType) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/' . $slayerCreatureType . '_Slayer" target="acpedia" title="Weapon does greater damage against this creature type">' . $slayerCreatureType . ' Slayer</a>';
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/' . $slayerCreatureType . '_Slayer" target="wiki" title="Weapon does greater damage against this creature type">' . $slayerCreatureType . ' Slayer</a>';
 }
 if ($phantasmal) {
-    $specialProperties[] = '<a href="http://acpedia.org/wiki/Phantasmal" target="acpedia" title="Weapon does greater damage against this creature type">Phantasmal</a>';    
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Phantasmal" target="wiki" title="Weapon does greater damage against this creature type">Phantasmal</a>';    
 }
 if ($castOnStrikeSpell) {
-    $first = '<a href="http://acpedia.org/wiki/Cast_on_Strike" target="acpedia" title="Weapon casts spell upon successful hit of creature">Cast on Strike</a>';
-    $second = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $castOnStrikeSpell['name']) . '" target="acpedia">' . $castOnStrikeSpell['name'] . ' (' . getPercentage($castOnStrikeRate) . ')</a>';
+    $first = '<a href="http://acportalstorm.com/wiki/Cast_on_Strike" target="wiki" title="Weapon casts spell upon successful hit of creature">Cast on Strike</a>';
+    $second = '<a href="http://acportalstorm.com/wiki/' . str_replace(' ', '_', $castOnStrikeSpell['name']) . '" target="wiki">' . $castOnStrikeSpell['name'] . ' (' . getPercentage($castOnStrikeRate) . ')</a>';
     $specialProperties[] = $first . ': ' . $second;
 }
 
@@ -574,9 +574,7 @@ if ($description) {
 <tr>
     <th>Links</th>
     <td>
-            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $weapon['name']); ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $weapon['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://wiki.org/<?php echo str_replace(' ', '_', $weapon['name']); ?>" target="wiki">Wiki</a>
     </td>
 </tr>
 </table>
@@ -660,7 +658,7 @@ if ($spells) {
 <?php
     $spellsList = array();
     foreach ($spells as $spell) {
-        $spellsList[] = '<a href="http://acpedia.org/wiki/' . str_replace(' ', '_', $spell['name']) . '">' . $spell['name'] . '</a>';
+        $spellsList[] = '<a href="http://acportalstorm.com/wiki/' . str_replace(' ', '_', $spell['name']) . '">' . $spell['name'] . '</a>';
     }
     
     echo implode('<br />', $spellsList);
