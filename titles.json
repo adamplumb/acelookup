@@ -1306,18 +1306,6 @@
                 "recLvlMin": 40
             },
             {
-                "title": "Contract Killer",
-                "quest": "Broker Contracts",
-                "xp": "40,000,000 (??% up to level&#160;??)",
-                "reqLevel": "",
-                "recLevel": "40 - 130+",
-                "type": "Solo",
-                "xpNum": 40000000,
-                "reqLvlMin": 1,
-                "reqLvlMax": 275,
-                "recLvlMin": 40
-            },
-            {
                 "title": "Arena Custodian",
                 "quest": "Colosseum Arena",
                 "xp": "200,000 (??% up to level&#160;??)",
@@ -2453,6 +2441,18 @@
                 "recLevel": "80",
                 "type": "Solo",
                 "xpNum": 10000000,
+                "reqLvlMin": 1,
+                "reqLvlMax": 275,
+                "recLvlMin": 80
+            },
+            {
+                "title": "Contract Killer",
+                "quest": "Broker Contracts",
+                "xp": "40,000,000 (??% up to level&#160;??)",
+                "reqLevel": "",
+                "recLevel": 80,
+                "type": "Solo",
+                "xpNum": 40000000,
                 "reqLvlMin": 1,
                 "reqLvlMax": 275,
                 "recLvlMin": 80

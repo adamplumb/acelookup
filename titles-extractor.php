@@ -333,6 +333,10 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
         case "Colosseum Arena":
             $returner['recLevel'] = 40;
             break;
+            
+        case "Broker Contracts":
+            $returner['recLevel'] = 80;
+            break;
     }
     
     // Hack for pages like "Ritual of the Blight" that contain multiple titles and required levels
