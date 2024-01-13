@@ -493,9 +493,7 @@ if ($wieldedItems) {
         </td>
         <td><?php echo $item['armorLevel']; ?></td>
         <td>
-            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $item['name']); ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $item['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $item['name']); ?>" target="wiki">Wiki</a>
         </td>
     </tr>
 <?php
