@@ -90,9 +90,7 @@ if (isset($dataIds[PropertyDataId::DeathTreasureType])) {
 <tr>
     <th>Links</th>
     <td>
-            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $mob['name']); ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $mob['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $mob['name']); ?>" target="wiki">Wiki</a>
     </td>
 </tr>
 </table>
@@ -360,9 +358,7 @@ if ($spellBook) {
         <td><?php echo $spell['name']; ?></td>
         <td><?php echo $spell['probability']; ?>%</td>
         <td>
-            <a href="http://acpedia.org/<?php echo str_replace(' ', '_', $spell['name']); ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/spells/spell/<?php echo $spell['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $spell['name']); ?>" target="wiki">Wiki</a>
         </td>
     </tr>
 <?php
@@ -543,9 +539,7 @@ if (count($createList) > 0) {
         <td><?php echo $row['code']; ?></td>
         <td><?php echo round(100 * $row['chance'], 1); ?>%</td>
         <td>
-            <a href="http://acpedia.org/<?php echo $row['name']; ?>" target="acpedia">ACPedia</a>
-            /
-            <a href="http://ac.yotesfan.com/weenies/items/<?php echo $row['id']; ?>" target="yotesfan">Yotesfan</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo $row['name']; ?>" target="wiki">Wiki</a>
         </td>
     </tr>
 <?php
