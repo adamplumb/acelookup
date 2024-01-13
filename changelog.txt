@@ -3,6 +3,8 @@ Changelog
 
 2024-01-13
 - Add call-out for undefined damage type in mob body part attacks
+- Add treestats server extractor
+- Add treestats player title lookup on the titles page
 
 2024-01-11
 - Added titles page lookup
