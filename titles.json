@@ -545,7 +545,7 @@
                 "recLvlMin": 15
             },
             {
-                "title": "Resistance Recruit",
+                "title": "Female Tusker Tusk Quest",
                 "quest": "Female Tusker Tusk Quest",
                 "xp": "100,000 (100% up to level 16)",
                 "reqLevel": "",
@@ -559,7 +559,7 @@
                 "recLvlMin": 15
             },
             {
-                "title": "Resistance Fighter",
+                "title": "Male Tusker Tusk Quest",
                 "quest": "Male Tusker Tusk Quest",
                 "xp": "200,000 (100% up to level 19)",
                 "reqLevel": "",
@@ -677,7 +677,7 @@
                 "recLvlMin": 20
             },
             {
-                "title": "Golden God",
+                "title": "Goldenback Tusker Tusk Quest",
                 "quest": "Goldenback Tusker Tusk Quest",
                 "xp": "500,000 (100% up to level 26)",
                 "reqLevel": "15",
@@ -691,7 +691,7 @@
                 "recLvlMin": 20
             },
             {
-                "title": "Bugstomper",
+                "title": "Harvester Pincer Quest",
                 "quest": "Harvester Pincer Quest",
                 "xp": "500,000 (100% up to level 26)",
                 "reqLevel": "",
@@ -705,7 +705,7 @@
                 "recLvlMin": 20
             },
             {
-                "title": "Red Fury",
+                "title": "Tusker Crimsonback Tusk Quest",
                 "quest": "Tusker Crimsonback Tusk Quest",
                 "xp": "350,000 (100% up to level 23)",
                 "reqLevel": "12",
@@ -747,7 +747,7 @@
                 "recLvlMin": 25
             },
             {
-                "title": "Gardener Weeder",
+                "title": "Gardener Pincer Quest",
                 "quest": "Gardener Pincer Quest",
                 "xp": "750,000 (100% up to level 29)",
                 "reqLevel": "",
@@ -801,7 +801,7 @@
                 "recLvlMin": 25
             },
             {
-                "title": "Deliverer",
+                "title": "Tusker Liberator Tusk Quest",
                 "quest": "Tusker Liberator Tusk Quest",
                 "xp": "850,000 (100% up to level 30)",
                 "reqLevel": "25",
@@ -815,7 +815,7 @@
                 "recLvlMin": 25
             },
             {
-                "title": "Lightbringer",
+                "title": "Tusker Redeemer Tusk Quest",
                 "quest": "Tusker Redeemer Tusk Quest",
                 "xp": "750,000 (100% up to level 29)",
                 "reqLevel": "20",
@@ -829,7 +829,7 @@
                 "recLvlMin": 25
             },
             {
-                "title": "Worker Obliterator",
+                "title": "Worker Pincer Quest",
                 "quest": "Worker Pincer Quest",
                 "xp": "850,000 (100% up to level 30)",
                 "reqLevel": "",
@@ -1126,7 +1126,7 @@
                 "recLvlMin": 30
             },
             {
-                "title": "Ruuk Ally",
+                "title": "Falatacot Medallion (Low)",
                 "quest": "Falatacot Medallion (Low)",
                 "xp": "<span style=\"color:yellow;\"><b>Differs from Retail:<\/b><\/span> 350,000 (Fixed)",
                 "reqLevel": "1-40",
@@ -1168,7 +1168,7 @@
                 "recLvlMin": 30
             },
             {
-                "title": "Soldier Slaughterer",
+                "title": "Soldier Pincer Quest",
                 "quest": "Soldier Pincer Quest",
                 "xp": "1,000,000 (Fixed)",
                 "reqLevel": "30",
@@ -1182,7 +1182,7 @@
                 "recLvlMin": 30
             },
             {
-                "title": "Chain Breaker",
+                "title": "Tusker Slave Tusk Quest",
                 "quest": "Tusker Slave Tusk Quest",
                 "xp": "1,000,000 (100% up to level 32)",
                 "reqLevel": "30",
@@ -1210,7 +1210,7 @@
                 "recLvlMin": 35
             },
             {
-                "title": "Gaerlan Slayer",
+                "title": "Gaerlan's Citadel (Low)",
                 "quest": "Gaerlan's Citadel (Low)",
                 "xp": "3,000,000 (100% up to level 40)",
                 "reqLevel": "20-39",
@@ -1563,7 +1563,7 @@
                 "recLvlMin": 40
             },
             {
-                "title": "Engorged Scourge",
+                "title": "Engorged Eater Jaw Quest",
                 "quest": "Engorged Eater Jaw Quest",
                 "xp": "2,500,000 (100% up to level 41)",
                 "reqLevel": "40",
@@ -1631,7 +1631,7 @@
                 "recLvlMin": 40
             },
             {
-                "title": "Exterminator",
+                "title": "Legionary Pincer Quest",
                 "quest": "Legionary Pincer Quest",
                 "xp": "2,500,000 (Fixed)",
                 "reqLevel": "40",
@@ -1700,7 +1700,7 @@
                 "recLvlMin": 40
             },
             {
-                "title": "Morale Smasher",
+                "title": "Tusker Guard Tusk Quest",
                 "quest": "Tusker Guard Tusk Quest",
                 "xp": "2,500,000 (100% up to level 41)",
                 "reqLevel": "40",
@@ -1742,7 +1742,7 @@
                 "recLvlMin": 45
             },
             {
-                "title": "Silver Serf",
+                "title": "Silver Tusker Tusk Quest",
                 "quest": "Silver Tusker Tusk Quest",
                 "xp": "5,000,000 (Fixed)",
                 "reqLevel": "45",
@@ -1762,7 +1762,7 @@
         "max": 59,
         "titles": [
             {
-                "title": "Shredder",
+                "title": "Armored Tusker Tusk Quest",
                 "quest": "Armored Tusker Tusk Quest",
                 "xp": "3,500,000 (Fixed)",
                 "reqLevel": "50",
@@ -1860,7 +1860,7 @@
                 "recLvlMin": 50
             },
             {
-                "title": "Bug Butcher",
+                "title": "Eviscerator Pincer Quest",
                 "quest": "Eviscerator Pincer Quest",
                 "xp": "5,000,000 (Fixed)",
                 "reqLevel": "50",
@@ -1999,7 +1999,7 @@
                 "recLvlMin": 50
             },
             {
-                "title": "Hunter",
+                "title": "Hunter (Title)",
                 "quest": "Magma Golem Exarch Kill Task",
                 "xp": "5,000,000 (??% up to level&#160;??)",
                 "reqLevel": "",
@@ -2097,7 +2097,7 @@
                 "recLvlMin": 50
             },
             {
-                "title": "Gaerlan Slayer",
+                "title": "Gaerlan's Citadel (Mid)",
                 "quest": "Gaerlan's Citadel (Mid)",
                 "xp": "20,000,000 (60% up to level 80)",
                 "reqLevel": "40-59",
@@ -2242,7 +2242,7 @@
                 "recLvlMin": 60
             },
             {
-                "title": "Heart Ripper",
+                "title": "Rampager Tusk Quest",
                 "quest": "Rampager Tusk Quest",
                 "xp": "8,000,000 (Fixed)",
                 "reqLevel": "60",
@@ -2298,7 +2298,7 @@
                 "recLvlMin": 65
             },
             {
-                "title": "Ruuk Ally",
+                "title": "Falatacot Medallion (Mid)",
                 "quest": "Falatacot Medallion (Mid)",
                 "xp": "25,500,000 (85% up to level 80)",
                 "reqLevel": "41-80",
@@ -2312,7 +2312,7 @@
                 "recLvlMin": 65
             },
             {
-                "title": "Gaerlan Slayer",
+                "title": "Gaerlan's Citadel (High)",
                 "quest": "Gaerlan's Citadel (High)",
                 "xp": "20,000,000 (60% up to level 80)",
                 "reqLevel": "60-79",
@@ -2387,7 +2387,7 @@
                 "recLvlMin": 70
             },
             {
-                "title": "Bloodletter",
+                "title": "Plated Tusker Tusk Quest",
                 "quest": "Plated Tusker Tusk Quest",
                 "xp": "6,500,000 (Fixed)",
                 "reqLevel": "70",
@@ -2414,7 +2414,7 @@
                 "recLvlMin": 70
             },
             {
-                "title": "Voracious Flayer",
+                "title": "Voracious Eater Jaw Quest",
                 "quest": "Voracious Eater Jaw Quest",
                 "xp": "8,000,000 (Fixed)",
                 "reqLevel": "70",
@@ -2442,7 +2442,7 @@
                 "recLvlMin": 70
             },
             {
-                "title": "Warrior Vanquisher",
+                "title": "Warrior Pincer Quest",
                 "quest": "Warrior Pincer Quest",
                 "xp": "8,000,000 (Fixed)",
                 "reqLevel": "70",
@@ -2739,7 +2739,7 @@
                 "recLvlMin": 80
             },
             {
-                "title": "Master of Slaughter",
+                "title": "Assailer Tusk Quest",
                 "quest": "Assailer Tusk Quest",
                 "xp": "11,000,000 (Fixed)",
                 "reqLevel": "80",
@@ -2807,7 +2807,7 @@
                 "recLvlMin": 80
             },
             {
-                "title": "Contract Killer",
+                "title": "Broker Contracts",
                 "quest": "Broker Contracts",
                 "xp": "40,000,000 (??% up to level&#160;??)",
                 "reqLevel": "",
@@ -2890,7 +2890,7 @@
                 "recLvlMin": 80
             },
             {
-                "title": "Annihilator",
+                "title": "Mutilator Pincer Quest",
                 "quest": "Mutilator Pincer Quest",
                 "xp": "11,000,000 (Fixed)",
                 "reqLevel": "80",
@@ -3033,7 +3033,7 @@
         "max": 125,
         "titles": [
             {
-                "title": "Abhorrent Warrior",
+                "title": "Abhorrent Eater Jaw Quest",
                 "quest": "Abhorrent Eater Jaw Quest",
                 "xp": "15,000,000 (Fixed)",
                 "reqLevel": "90",
@@ -3129,7 +3129,7 @@
                 "recLvlMin": 100
             },
             {
-                "title": "Paragon of Death",
+                "title": "Devastator Tusk Quest",
                 "quest": "Devastator Tusk Quest",
                 "xp": "20,000,000 (Fixed)",
                 "reqLevel": "100",
@@ -3314,7 +3314,7 @@
                 "recLvlMin": 100
             },
             {
-                "title": "Ruuk Ally",
+                "title": "Falatacot Medallion (High)",
                 "quest": "Falatacot Medallion (High)",
                 "xp": "48,300,000 (??% up to level&#160;??)",
                 "reqLevel": "81-120",
@@ -3653,7 +3653,7 @@
                 "recLvlMin": 100
             },
             {
-                "title": "Master of the Hunt",
+                "title": "Master of the Hunt (Title)",
                 "quest": "Carenzi Plague",
                 "xp": "56,184,660 (30% up to level 130)",
                 "reqLevel": "",
@@ -3751,7 +3751,7 @@
                 "recLvlMin": 110
             },
             {
-                "title": "Ravenous Killer",
+                "title": "Ravenous Eater Jaw Quest",
                 "quest": "Ravenous Eater Jaw Quest",
                 "xp": "35,000,000 (Fixed)",
                 "reqLevel": "110",
@@ -3793,7 +3793,7 @@
                 "recLvlMin": 120
             },
             {
-                "title": "Ruuk Ally",
+                "title": "Falatacot Medallion (Extreme)",
                 "quest": "Falatacot Medallion (Extreme)",
                 "xp": "69,000,000 (??% up to level&#160;??)",
                 "reqLevel": "121",
@@ -3807,7 +3807,7 @@
                 "recLvlMin": 121
             },
             {
-                "title": "Crystalline Adventurer",
+                "title": "Crystalline Adventurer (Title)",
                 "quest": "Crystalline Adventurer",
                 "xp": "75,000,000 (20% up to level 156)",
                 "reqLevel": "70-130",
@@ -3939,7 +3939,7 @@
                 "recLvlMin": 130
             },
             {
-                "title": "Gaerlan Slayer",
+                "title": "Gaerlan's Citadel (Extreme)",
                 "quest": "Gaerlan's Citadel (Extreme)",
                 "xp": "22,000,000 (Fixed)",
                 "reqLevel": "80-149",
@@ -4282,7 +4282,7 @@
                 "recLvlMin": 150
             },
             {
-                "title": "Burun Liberator",
+                "title": "Burun Liberator (Title)",
                 "quest": "Burun Liberator",
                 "xp": "197,347,085 (30% up to level 180)",
                 "reqLevel": "150",
@@ -4310,7 +4310,7 @@
                 "recLvlMin": 150
             },
             {
-                "title": "Pumpkin Throne Usurper",
+                "title": "Colosseum Bosses",
                 "quest": "Colosseum Bosses",
                 "xp": "248,000,000 (??% up to level&#160;??)",
                 "reqLevel": "",
@@ -4432,7 +4432,7 @@
                 "recLvlMin": 150
             },
             {
-                "title": "Gaerlan Slayer",
+                "title": "Gaerlan's Citadel (Uber)",
                 "quest": "Gaerlan's Citadel (Uber)",
                 "xp": "90,000,000 (??% up to level&#160;??)",
                 "reqLevel": "150",
@@ -5082,7 +5082,7 @@
                 "recLvlMin": 160
             },
             {
-                "title": "Golden Gear Crafter or",
+                "title": "Golden Gear Crafter",
                 "quest": "Gear Knight Construction",
                 "xp": "297,235,854 (30% up to level 200)",
                 "reqLevel": "",
@@ -5347,7 +5347,7 @@
                 "recLvlMin": 160
             },
             {
-                "title": "Stone Collector",
+                "title": "Stone Collector (Title)",
                 "quest": "Summoning T'thuun",
                 "xp": "500,000,000 (50% up to level 200)",
                 "reqLevel": "",
@@ -5910,7 +5910,7 @@
                 "recLvlMin": 195
             },
             {
-                "title": "Guardian of Linvak Tukal",
+                "title": "Guardian of Linvak Tukal (Title)",
                 "quest": "Aerbax's Prodigal Lugian",
                 "xp": "162,415,717 (50% up to level",
                 "reqLevel": "150",
@@ -6317,7 +6317,7 @@
                 "recLvlMin": 200
             },
             {
-                "title": "Clouded Soul",
+                "title": "Clouded Soul (Title)",
                 "quest": "Shadow Communication",
                 "xp": "350,000,000 (??% up to level&#160;??)",
                 "reqLevel": "200",

@@ -32,7 +32,7 @@ if ($server && $player) {
     foreach ($treeStatsLines as $index => $line) {
         if (string_contains($line, "<span class='title_list_item'>") || string_contains($line, "<span class='current_title title_list_item'>")) {
             if (preg_match("/\<a.*\>(.*?)\<\/a\>/", $treeStatsLines[$index +1], $matches)) {
-                $safeTitle = str_replace('&#39;', "'", $matches[1]);
+                $safeTitle = strtolower(str_replace('&#39;', "'", $matches[1]));
                 $charTitles[$safeTitle] = true;
                 $numTitlesFound++;
             }
@@ -109,8 +109,7 @@ foreach ($groups as $name => $obj) {
         $htmlTitle = str_replace(' ', '_', $titleObj->title);
         $htmlQuest = str_replace(' ', '_', $titleObj->quest);
         
-        $titleMatch = str_replace(' (Title)', '', $titleObj->title);
-        
+        $titleMatch = strtolower(str_replace(' (Title)', '', $titleObj->title));
         $notes = array();
         if ($titleObj->status == 'Unverified') {
             $notes[] = "Unverified";
