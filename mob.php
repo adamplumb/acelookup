@@ -381,6 +381,7 @@ if ($spellBook) {
 <br />
 <h3>Attacks from Body Parts</h3>
 <p class="note">If the creature is using body parts to attack, this is what they may use.  If there is "wielded treasure" below then they may use those weapons to attack instead.</p>
+<p class="note">Note: If a creature does <i>UNDEFINED</i> damage, watch out!  You have no protections against it.</p>
 
 <table class="horizontal-table">
 <thead>

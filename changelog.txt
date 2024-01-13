@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2024-01-13
+- Add call-out for undefined damage type in mob body part attacks
+
 2024-01-11
 - Added titles page lookup
 - Switched to acportalstorm.com/wiki for the wiki link

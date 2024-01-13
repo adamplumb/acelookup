@@ -2391,7 +2391,7 @@ const DAMAGE_TYPE = array(
 );
 
 const DAMAGE_TYPE_INT = array(
-    0       => '',
+    0       => 'UNDEFINED',
     1       => 'Slash',
     2       => 'Pierce',
     3       => 'Slash/Pierce',
