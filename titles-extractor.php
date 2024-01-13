@@ -211,13 +211,13 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
 
             if ($numSeenTitles > 0) {
                 if (str_contains($line, "<td>${searchTitle}")) {
-                    if (preg_match("/\<td\>([a-zA-Z\s\']+)/", $line, $matches)) {
+                    if (preg_match("/\<td\>([a-zA-Z\s\'\-]+)/", $line, $matches)) {
                         $returner['title'] = trim($matches[1]);
                         $returner['xp'] = $lastExperience;
                     }
                 } else if (str_contains($line, "<ul><li>Titles: ${searchTitle}")) {
                     // Hack for Coral Golem Kill Task
-                    if (preg_match("/\<ul\>\<li\>Titles\: ([a-zA-Z\s\']+)/", $line, $matches)) {
+                    if (preg_match("/\<ul\>\<li\>Titles\: ([a-zA-Z\s\'\-]+)/", $line, $matches)) {
                         $returner['title'] = trim($matches[1]);
                         $returner['xp'] = $lastExperience;
                     }
@@ -615,41 +615,5 @@ foreach ($all_info as $obj) {
         }
     }
 }
-
-/*
-$sortKey = 'reqLvlMin';
-if (!isset($titles[0]->$sortKey)) {
-    $sortKey == 'title';
-}
-
-function cmpQuest($a, $b) {
-    if ($a['quest'] == $b['quest']) {
-        return 0;
-    }
-    
-    return ($a['quest'] < $b['quest']) ? -1 : 1;
-}
-
-function cmpReqLvlMin($a, $b) {
-    if ($a['reqLvlMin'] == $b['reqLvlMin']) {
-        return cmpQuest($a, $b);
-    }
-    
-    return ($a['reqLvlMin'] < $b['reqLvlMin']) ? -1 : 1;
-}
-
-function cmpRecLvlMin($a, $b) {
-    $aVal = $a['recLvlMin'] ? $a['recLvlMin'] : $a['reqLvlMin'];
-    $bVal = $b['recLvlMin'] ? $b['recLvlMin'] : $b['reqLvlMin']; 
-       
-    if ($aVal == $bVal) {
-        return cmpQuest($a, $b);
-    }
-    
-    return ($aVal < $bVal) ? -1 : 1;
-}
-
-usort($all_info, 'cmpRecLvlMin');
-*/
 
 file_put_contents("titles.json", json_encode($groups,  JSON_PRETTY_PRINT));

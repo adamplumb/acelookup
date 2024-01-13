@@ -3463,7 +3463,7 @@
                 "recLvlMin": 100
             },
             {
-                "title": "Iron",
+                "title": "Iron-Spined Chittick Immolator",
                 "quest": "Iron Spined Chittick Kill Task",
                 "xp": "59,000,000 (Fixed)",
                 "reqLevel": "",
@@ -3639,7 +3639,7 @@
                 "recLvlMin": 100
             },
             {
-                "title": "Man",
+                "title": "Man-At-Arms Thrasher",
                 "quest": "Viamontian Man-at-Arms Kill Task",
                 "xp": "58,000,000 (40% up to level 123)",
                 "reqLevel": "",
@@ -4171,7 +4171,7 @@
                 "recLvlMin": 150
             },
             {
-                "title": "Paradox",
+                "title": "Paradox-touched Queenslayer",
                 "quest": "Aerbax's Prodigal Olthoi",
                 "xp": null,
                 "reqLevel": "120",
@@ -5040,7 +5040,7 @@
                 "recLvlMin": 160
             },
             {
-                "title": "Party",
+                "title": "Party-Goer",
                 "quest": "Dereth Exploration",
                 "xp": "186,837,005 (20% up to level 197)",
                 "reqLevel": "",
@@ -6442,7 +6442,7 @@
                 "recLvlMin": 200
             },
             {
-                "title": "The Tou",
+                "title": "The Tou-Tou Terror",
                 "quest": "Stop the Rebuilding",
                 "xp": "350,000,000 (??% up to level&#160;??)",
                 "reqLevel": "200",
