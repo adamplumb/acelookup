@@ -212,13 +212,19 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
             if ($numSeenTitles > 0) {
                 if (str_contains($line, "<td>${searchTitle}")) {
                     if (preg_match("/\<td\>([a-zA-Z\s\'\-]+)/", $line, $matches)) {
-                        $returner['title'] = trim($matches[1]);
+                        if (str_contains($matches[1], $title)) {
+                            $returner['title'] = $title;
+                        }
+                        
                         $returner['xp'] = $lastExperience;
                     }
                 } else if (str_contains($line, "<ul><li>Titles: ${searchTitle}")) {
                     // Hack for Coral Golem Kill Task
                     if (preg_match("/\<ul\>\<li\>Titles\: ([a-zA-Z\s\'\-]+)/", $line, $matches)) {
-                        $returner['title'] = trim($matches[1]);
+                        if (str_contains($matches[1], $title)) {
+                            $returner['title'] = $title;
+                        }
+                        
                         $returner['xp'] = $lastExperience;
                     }
                 }
