@@ -2729,3 +2729,7 @@ function getPageVariable($key, $defaultValue) {
     
     return $returner;
 }
+
+function string_contains($haystack, $needle) {
+    return strpos($haystack, $needle) !== false;
+}

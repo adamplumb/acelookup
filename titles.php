@@ -21,7 +21,7 @@ if ($server && $player) {
     $treeStatsContents = @file_get_contents($treeStatsUrl);
     $treeStatsLines = explode("\n", $treeStatsContents);
     foreach ($treeStatsLines as $index => $line) {
-        if (str_contains($line, "<span class='title_list_item'>") || str_contains($line, "<span class='current_title title_list_item'>")) {
+        if (string_contains($line, "<span class='title_list_item'>") || string_contains($line, "<span class='current_title title_list_item'>")) {
             if (preg_match("/\<a.*\>(.*?)\<\/a\>/", $treeStatsLines[$index +1], $matches)) {
                 $charTitles[html_entity_decode($matches[1])] = true;
                 $numTitlesFound++;
