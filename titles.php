@@ -17,8 +17,17 @@ $charTitles = array();
 $numTitlesFound = 0;
 
 if ($server && $player) {
+    // Hack to workaround php 5.6 ssl issue 
+    // https://stackoverflow.com/questions/26148701/file-get-contents-ssl-operation-failed-with-code-1-failed-to-enable-crypto
+    $arrContextOptions = array(
+        "ssl" => array(
+            "verify_peer" => false,
+            "verify_peer_name" => false,
+        ),
+    );
+
     $treeStatsUrl = 'https://treestats.net/' . $server . '/' . str_replace(' ', '%20', $player);
-    $treeStatsContents = @file_get_contents($treeStatsUrl);
+    $treeStatsContents = @file_get_contents($treeStatsUrl, false, stream_context_create($arrContextOptions));
     $treeStatsLines = explode("\n", $treeStatsContents);
     foreach ($treeStatsLines as $index => $line) {
         if (string_contains($line, "<span class='title_list_item'>") || string_contains($line, "<span class='current_title title_list_item'>")) {
