@@ -212,19 +212,22 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
             if ($numSeenTitles > 0) {
                 if (str_contains($line, "<td>${searchTitle}")) {
                     if (preg_match("/\<td\>([a-zA-Z\s\'\-]+)/", $line, $matches)) {
-                        if (str_contains($matches[1], $title)) {
+                        // Something like "Golden Gear Crafter" has a wonky or at the end
+                        if (str_contains($matches[1], ' or')) {
                             $returner['title'] = $title;
+                        } else {
+                            $returner['title'] = trim($matches[1]);
                         }
-                        
                         $returner['xp'] = $lastExperience;
                     }
                 } else if (str_contains($line, "<ul><li>Titles: ${searchTitle}")) {
                     // Hack for Coral Golem Kill Task
                     if (preg_match("/\<ul\>\<li\>Titles\: ([a-zA-Z\s\'\-]+)/", $line, $matches)) {
-                        if (str_contains($matches[1], $title)) {
+                        if (str_contains($matches[1], ' or')) {
                             $returner['title'] = $title;
+                        } else {
+                            $returner['title'] = trim($matches[1]);
                         }
-                        
                         $returner['xp'] = $lastExperience;
                     }
                 }
@@ -385,7 +388,7 @@ function extractInformationFromContents($title, $contents, $titleOverride) {
     if ((!$returner['reqLevel'] || $returner['reqLevel'] == 'Any') && $hearthSeeker) {
         $returner['recLevel'] = $hearthSeeker . '+';
     }
-    
+        
     return $returner;
 }
 
