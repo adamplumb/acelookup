@@ -3,6 +3,7 @@ Changelog
 
 2024-02-18
 - Add special property info for Hollow Weapons
+- Fix wiki link on main weapons page
 
 2024-01-13
 - Add call-out for undefined damage type in mob body part attacks
