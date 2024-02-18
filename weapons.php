@@ -580,7 +580,7 @@ if ($description) {
 <tr>
     <th>Links</th>
     <td>
-            <a href="http://acportalstorm.org/wiki/<?php echo str_replace(' ', '_', $weapon['name']); ?>" target="wiki">Wiki</a>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $weapon['name']); ?>" target="wiki">Wiki</a>
     </td>
 </tr>
 </table>
