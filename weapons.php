@@ -473,6 +473,12 @@ if (isset($ints[PropertyInt::Bonded])) {
 if (isset($bools[PropertyBool::Ivoryable])) {
     $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Ivoryable" target="wiki" title="You can apply a bag of Salvaged Ivory to allow the item to be muled, but not wielded by other characters">Ivoryable</a>';
 }
+if (isset($bools[PropertyBool::IgnoreMagicArmor])) {
+    $specialProperties[] = '<a href="https://acportalstorm.com/wiki/Category:Hollow" target="wiki" title="Allows the weapon to ignore armor banes.">Hollow against Banes</a>';
+}
+if (isset($bools[PropertyBool::IgnoreMagicResist])) {
+    $specialProperties[] = '<a href="https://acportalstorm.com/wiki/Category:Hollow" target="wiki" title="Allows the weapon to ignore life protections.">Hollow against Life Protections</a>';
+}
 if (isset($weaponResistanceCleavingType)) {
     $prop = "Resistance Cleaving: ${weaponResistanceCleavingType}";
     $specialProperties[] = '<a href="http://acportalstorm.com/wiki/' . str_replace(' ', '_', $prop) . '" target="wiki" title="Causes extra damage against the creature of this damage type">' . $prop . '</a>';
