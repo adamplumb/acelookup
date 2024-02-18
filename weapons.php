@@ -499,7 +499,7 @@ if ($slayerCreatureType) {
     $specialProperties[] = '<a href="http://acportalstorm.com/wiki/' . $slayerCreatureType . '_Slayer" target="wiki" title="Weapon does greater damage against this creature type">' . $slayerCreatureType . ' Slayer</a>';
 }
 if ($phantasmal) {
-    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Phantasmal" target="wiki" title="Weapon does greater damage against this creature type">Phantasmal</a>';    
+    $specialProperties[] = '<a href="http://acportalstorm.com/wiki/Phantasmal" target="wiki" title="Ignore the physical protections Armor and Shields give">Phantasmal</a>';    
 }
 if ($castOnStrikeSpell) {
     $first = '<a href="http://acportalstorm.com/wiki/Cast_on_Strike" target="wiki" title="Weapon casts spell upon successful hit of creature">Cast on Strike</a>';
