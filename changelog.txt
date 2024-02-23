@@ -1,6 +1,9 @@
 Changelog
 =========
 
+2024-02-23
+- Initial work to add quest missile weapon damage simulation
+
 2024-02-18
 - Add special property info for Hollow Weapons
 - Fix wiki link on main weapons page
