@@ -74,6 +74,7 @@ print_r($dataIds);
 print "spells\n";
 print_r($spells);
 */
+
 $spellEffects = array();
 $spellEffects[PropertyFloat::WeaponAuraOffense] = 0;
 $spellEffects[PropertyFloat::WeaponAuraDefense] = 0;
@@ -93,6 +94,8 @@ print "Spell effects\n";
 print_r($spellEffects);
 */
 
+$weenieTypeName = WEENIE_TYPE[$weapon['type']];
+
 $description = null;
 if (isset($strings[PropertyString::ShortDesc])) {
     $description = $strings[PropertyString::ShortDesc];
@@ -101,20 +104,102 @@ if (isset($strings[PropertyString::ShortDesc])) {
 }
 
 $damage = $ints[PropertyInt::Damage];
-$variance = $floats[PropertyFloat::DamageVariance];
+$variance = isset($floats[PropertyFloat::DamageVariance]) ? $floats[PropertyFloat::DamageVariance] : 1;
 $minDamage = getMinDamage($damage, $variance);
 $avgDamage = round(($damage + $minDamage) / 2);
-$baseDamageType = DAMAGE_TYPE_INT[$ints[PropertyInt::DamageType]];
-$damageType = $baseDamageType;
-if ($damageType == 'Slash/Pierce') {
-    $damageType = 'Slash';
+
+$weaponAndAmmoDamage = $damage;
+$weaponAndAmmoMinDamage = $minDamage;
+$weaponAndAmmoVariance = $variance;
+
+$damageType = '';
+$rawDamageType = '';
+if (isset($ints[PropertyInt::DamageType])) {
+    $rawDamageType = DAMAGE_TYPE_INT[$ints[PropertyInt::DamageType]];
+    $damageType = $rawDamageType;
+    if ($damageType == 'Slash/Pierce') {
+        $damageType = 'Slash';
+    }
 }
+
 $speed = $ints[PropertyInt::WeaponTime];
 $weaponOffense = isset($floats[PropertyFloat::WeaponOffense]) ? $floats[PropertyFloat::WeaponOffense] : 1;
 $weaponDefense = isset($floats[PropertyFloat::WeaponDefense]) ? $floats[PropertyFloat::WeaponDefense] : 1;
 $unenchantable = isset($ints[PropertyInt::ResistMagic]) && $ints[PropertyInt::ResistMagic] == 9999;
 $hasArmorCleaving = isset($floats[PropertyFloat::IgnoreArmor]) ? true : false;
 $weaponType = isset($ints[PropertyInt::WeaponType]) ? WEAPON_TYPES[$ints[PropertyInt::WeaponType]] : null;
+$hasDamageBuffs = isset($spellEffects[PropertyInt::WeaponAuraDamage]);
+
+/**
+ * Get ammo info for missile weapons
+ */
+$ammo = null;
+$ammoId = isset($_GET['ammoId']) ? $_GET['ammoId'] : null;
+$ammoList = array();
+if (isset($ints[PropertyInt::AmmoType])) {
+    $ammoList = getAmmoList($ints[PropertyInt::AmmoType]);
+
+    if (!$ammoId) {
+        $ammoId = $ammoList[0]['id'];
+    }
+
+    foreach ($ammoList as $ammoOption) {
+        if ($ammoOption['id'] == $ammoId) {
+            $ammo = $ammoOption;
+            break;
+        }
+    }
+}
+
+$isRanged = $weenieTypeName == 'MissileLauncher';
+$ammoFloats = null;
+$ammoInts = null;
+$ammoBools = null;
+$ammoStrings = null;
+$ammoDamage = null;
+$ammoDamageVariance = 1;
+$ammoMinDamage = null;
+$ammoDamageType = $damageType;
+$canUseElementalDamageBonus = false;
+$missileElementalDamageBonus = isset($ints[PropertyInt::ElementalDamageBonus]) ? $ints[PropertyInt::ElementalDamageBonus] : 0;
+$weaponAndAmmoDamageType = $damageType;
+$missileWeaponDamageMod = isset($floats[PropertyFloat::DamageMod]) ? $floats[PropertyFloat::DamageMod] : 1;
+$missileWeaponDamageModLabel = getWeaponModifierPercentage($missileWeaponDamageMod);
+if ($ammo) {
+    $ammoFloats = getFloats($ammo['id']);
+    $ammoInts = getInts($ammo['id']);
+    $ammoBools = getBools($ammo['id']);
+    $ammoStrings = getStrings($ammo['id']);
+        
+    /*
+    print "ammoFloats\n";
+    print_r($ammoFloats);
+    print "ammoInts\n";
+    print_r($ammoInts);
+    print "ammoBools\n";
+    print_r($ammoBools);
+    print "ammoStrings\n";
+    print_r($ammoStrings);
+    */
+    $ammoDamage = $ammoInts[PropertyInt::Damage];
+    $ammoDamageVariance = $ammoFloats[PropertyFloat::DamageVariance];
+    $ammoMinDamage = getMinDamage($ammoDamage, $ammoDamageVariance);
+    
+    $ammoDamageType = '';
+    if (isset($ammoInts[PropertyInt::DamageType])) {
+        $ammoDamageType = DAMAGE_TYPE_INT[$ammoInts[PropertyInt::DamageType]];
+    }
+    
+    $canUseElementalDamageBonus = $ammoDamageType == $damageType || $ammoDamageType == 'Base';
+    
+    $weaponAndAmmoDamage = $damage + $ammoDamage;
+    if ($canUseElementalDamageBonus) {
+        $weaponAndAmmoDamage += $missileElementalDamageBonus;
+    }
+    $weaponAndAmmoMinDamage = getMinDamage($weaponAndAmmoDamage, $ammoDamageVariance);
+    $weaponAndAmmoVariance = $ammoDamageVariance;
+    $weaponAndAmmoDamageType = $ammoDamageType;
+}
 
 $imbuedEffectValue = -1;
 if (isset($ints[PropertyInt::ImbuedEffect])) {
@@ -163,13 +248,19 @@ if (isset($spellEffects[PropertyInt::WeaponAuraSpeed])) {
  * CALCULTE BUFFED DAMAGE
  */
 
-$buffedDamage = $damage;
+$totalWeaponAndAmmoDamage = getDamageObj($weaponAndAmmoDamage, $weaponAndAmmoVariance, $missileWeaponDamageMod);
+
+$buffedWeaponOnlyDamage = $damage;
+$buffedNonTotalWeaponAndAmmoDamage = $weaponAndAmmoDamage;
 if (isset($spellEffects[PropertyInt::WeaponAuraDamage])) {
-    $buffedDamage += $spellEffects[PropertyInt::WeaponAuraDamage];
+    $buffedWeaponOnlyDamage += $spellEffects[PropertyInt::WeaponAuraDamage];
+    $buffedNonTotalWeaponAndAmmoDamage += $spellEffects[PropertyInt::WeaponAuraDamage];
 }
-$buffedMinDamage = getMinDamage($buffedDamage, $variance);
-$avgBuffedDamage = round(($buffedDamage + $buffedMinDamage) / 2);
-$buffedDamageObj = array('min' => $buffedMinDamage, 'max' => $buffedDamage, 'avg' => $avgBuffedDamage);
+$buffedDamageObj = getDamageObj($buffedNonTotalWeaponAndAmmoDamage, $weaponAndAmmoVariance, $missileWeaponDamageMod);
+$buffedDamage = $buffedDamageObj['max'];
+$buffedNonTotalWeaponAndAmmoMinDamage = getMinDamage($buffedNonTotalWeaponAndAmmoDamage, $weaponAndAmmoVariance);
+$buffedWeaponOnlyMinDamage = getMinDamage($buffedWeaponOnlyDamage, $weaponAndAmmoVariance);
+$buffedMinDamage = $buffedDamageObj['min'];
 $lastDamageObj = $buffedDamageObj;
 
 /**
@@ -177,9 +268,9 @@ $lastDamageObj = $buffedDamageObj;
  */
 
 $powerLevel = getPageVariable('powerLevel', 1);
-$powerMod = getPowerMod($powerLevel, false);
+$powerMod = getPowerMod($powerLevel, $isRanged);
 $beforePowerDamageObj = $lastDamageObj;
-$powerDamageObj = getDamageObj($lastDamageObj['max'], $variance, $powerMod);
+$powerDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $powerMod);
 $lastDamageObj = $powerDamageObj;
 
 /**
@@ -189,7 +280,7 @@ $lastDamageObj = $powerDamageObj;
 $damageRating = getPageVariable('damageRating', 5);
 $damageRatingMod = (100 + $damageRating) / 100;
 $beforeDRDamageObj = $lastDamageObj;
-$damageRatingObj = getDamageObj($lastDamageObj['max'], $variance, $damageRatingMod);
+$damageRatingObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $damageRatingMod);
 $lastDamageObj = $damageRatingObj;
 
 /**
@@ -203,7 +294,7 @@ $weaponDamageAttributeNumber = getWeaponDamageAttribute(
 $weaponDamageAttribute = ATTRIBUTES[$weaponDamageAttributeNumber];
 $attributeMod = getAttributeDamageMod($attributeValue, $weaponType);
 
-$attributeDamageObj = getDamageObj($lastDamageObj['max'], $variance, $attributeMod);
+$attributeDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $attributeMod);
 $beforeAttributeDamageObj = $lastDamageObj;
 $lastDamageObj = $attributeDamageObj;
 
@@ -246,7 +337,7 @@ $slayerCreatureType = isset($ints[PropertyInt::SlayerCreatureType]) ? CREATURE_T
 $slayerDamageObj = null;
 $beforeSlayerDamageObj = null;
 if ($slayerCreatureType && $slayerCreatureType == $creatureType) {
-    $slayerDamageObj = getDamageObj($lastDamageObj['max'], $variance, $slayerMod);
+    $slayerDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $slayerMod);
     $beforeSlayerDamageObj = $lastDamageObj;
     $lastDamageObj = $slayerDamageObj;
     $effectiveSlayerMod = $slayerMod;
@@ -288,7 +379,7 @@ $effectiveImperilValue = min($imperilValue, $castOnStrikeImperilValue);
 $effectiveArmorObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
-    $damageType,
+    $ammoDamageType == 'Base' ? $damageType : $weaponAndAmmoDamageType,
     $effectiveImperilValue,
     1,
     isset($bools[PropertyBool::IgnoreMagicArmor]),
@@ -298,7 +389,7 @@ $effectiveArmorObj = getEffectiveArmorObj(
 
 $creatureArmorMod = $effectiveArmorObj['armorMod'];
 
-$creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureArmorMod);
+$creatureArmorDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $creatureArmorMod);
 $beforeCreatureArmorDamageObj = $lastDamageObj;
 $lastDamageObj = $creatureArmorDamageObj;
 
@@ -313,7 +404,7 @@ $armorCleavingMod = getArmorCleavingMod($hasArmorCleaving, $maxSpellLevel);
 $effectiveArmorCleavingObj = getEffectiveArmorObj(
     $creatureFloats,
     $creatureBodyPartArmorLevel,
-    $damageType,
+    $ammoDamageType == 'Base' ? $damageType : $weaponAndAmmoDamageType,
     $effectiveImperilValue,
     $armorCleavingMod,
     $weaponIgnoreMagicArmor,
@@ -324,7 +415,7 @@ $effectiveArmorCleavingObj = getEffectiveArmorObj(
 // This replaces the creature-armor stuff if present
 // so the starting damage should come from before the armor damage mod
 $armorCleavingArmorMod = $effectiveArmorCleavingObj['armorMod'];
-$armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $variance, $armorCleavingArmorMod);
+$armorCleavingDamageObj = getDamageObj($beforeCreatureArmorDamageObj['max'], $weaponAndAmmoVariance, $armorCleavingArmorMod);
 $beforeArmorCleavingDamageObj = $beforeCreatureArmorDamageObj;
 $lastDamageObj = $armorCleavingDamageObj;
 
@@ -365,7 +456,7 @@ if ($shield) {
     $shieldModObj = getShieldModObj(
         $shieldFloats,
         $shieldArmorLevel,
-        $damageType,
+        $weaponAndAmmoDamageType,
         $shieldArmorAddedFromEnchantment,
         $ignoreShieldValue,
         $weaponIgnoreMagicArmor,
@@ -379,32 +470,37 @@ if ($shield) {
 }
 
 $beforeShieldDamageObj = $lastDamageObj;
-$shieldDamageObj = getDamageObj($beforeShieldDamageObj['max'], $variance, $shieldMod);
+$shieldDamageObj = getDamageObj($beforeShieldDamageObj['max'], $weaponAndAmmoVariance, $shieldMod);
 $lastDamageObj = $shieldDamageObj;
 
 /**
  * CALCULATE CREATURE-BASED RESISTANCE MITIGATIONS
  */
-$creatureResistanceModVsType = getResistanceModVsType($creatureFloats, $damageType);
-$creatureResistanceDamageObj = getDamageObj($lastDamageObj['max'], $variance, $creatureResistanceModVsType);
+
+$creatureResistanceModVsType = getResistanceModVsType(
+    $creatureFloats, 
+    $ammoDamageType == 'Base' ? $damageType : $weaponAndAmmoDamageType
+);
+$creatureResistanceDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $creatureResistanceModVsType);
 $beforeCreatureResistanceDamageObj = $lastDamageObj;
 $lastDamageObj = $creatureResistanceDamageObj;
-
 
 /**
  * CALCULATE RESISTANCE CLEAVING/RENDING DAMAGE
  */
 
 $weaponResistanceCleavingType = isset($ints[PropertyInt::ResistanceModifierType]) ? DAMAGE_TYPE_INT[$ints[PropertyInt::ResistanceModifierType]] : null;
-$weaponResistanceCleavingMod = getResistanceCleavingMod(
-    $weaponResistanceCleavingType,
-    isset($floats[PropertyFloat::ResistanceModifier]) ? $floats[PropertyFloat::ResistanceModifier] : 0
-);
-$weaponResistanceCleavingDamageObj = getDamageObj($lastDamageObj['max'], $variance, $weaponResistanceCleavingMod);
-$beforeWeaponResistanceCleavingDamageObj = $lastDamageObj;
-$lastDamageObj = $weaponResistanceCleavingDamageObj;
+$weaponResistanceCleavingMod = 1;
 
-
+if ($damageType == $ammoDamageType) {
+    $weaponResistanceCleavingMod = getResistanceCleavingMod(
+        $weaponResistanceCleavingType,
+        isset($floats[PropertyFloat::ResistanceModifier]) ? $floats[PropertyFloat::ResistanceModifier] : 0
+    );
+    $weaponResistanceCleavingDamageObj = getDamageObj($lastDamageObj['max'], $weaponAndAmmoVariance, $weaponResistanceCleavingMod);
+    $beforeWeaponResistanceCleavingDamageObj = $lastDamageObj;
+    $lastDamageObj = $weaponResistanceCleavingDamageObj;
+}
 
 /**
  * This should be the final damage information
@@ -509,6 +605,7 @@ if ($castOnStrikeSpell) {
 
 $powerLevelOptions = array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1);
 
+
 ?>
 
 <html>
@@ -601,14 +698,52 @@ if ($description) {
         <?php if ($weaponType) { echo '(' . $weaponType . ')'; } ?>
     </td>
 </tr>
+<?php
+if ($weenieTypeName == 'MeleeWeapon') {
+?>
 <tr>
     <th>Damage</th>
     <td>
         <?php echo $minDamage . ' - ' . $damage; ?>,
-        <?php echo $buffedDamageObj['max'] != $damage ? "<span class=\"spell-effect\">(" . $buffedDamageObj['min'] . ' - ' . $buffedDamageObj['max'] . ")</span>" : ''; ?>
-        <?php echo $baseDamageType; ?>
+        <?php echo $hasDamageBuffs ? "<span class=\"spell-effect\">(" . $buffedDamageObj['min'] . ' - ' . $buffedDamageObj['max'] . ")</span>" : ''; ?>
+        <?php echo $rawDamageType; ?>
     </td>
 </tr>
+<?php
+} else if ($weenieTypeName == 'MissileLauncher') {
+?>
+<tr>
+    <th>Damage Bonus</th>
+    <td>
+        <?php echo $damage; ?>
+        <?php echo isset($spellEffects[PropertyInt::WeaponAuraDamage]) ? "<span class=\"spell-effect\">(" . $buffedWeaponOnlyDamage . ")</span>" : ''; ?>
+    </td>
+</tr>
+<?php
+}
+
+if ($weenieTypeName == 'MissileLauncher') {
+    if ($missileElementalDamageBonus > 0) {
+?>
+<tr>
+    <th>Elemental Damage Bonus</th>
+    <td>
+        <?php echo $missileElementalDamageBonus; ?>,
+        <?php echo $rawDamageType; ?>
+    </td>
+</tr>
+<?php
+    }
+?>
+<tr>
+    <th>Damage Modifier</th>
+    <td>
+        <?php echo $missileWeaponDamageModLabel; ?>
+    </td>
+</tr>
+<?php
+}
+?>
 <tr>
     <th>Speed</th>
     <td>
@@ -616,6 +751,9 @@ if ($description) {
         <?php echo $finalWeaponSpeed != $speed ? "<span class=\"spell-effect\">(" . $finalWeaponSpeed . ")</span>" : ''; ?>
     </td>
 </tr>
+<?php
+if ($weenieTypeName == 'MeleeWeapon') {
+?>
 <tr>
     <th>Bonus to Attack Skill</th>
     <td>
@@ -623,6 +761,9 @@ if ($description) {
         <?php echo $finalWeaponOffense != $weaponOffense ? "<span class=\"spell-effect\">(" . getWeaponModifierPercentage($finalWeaponOffense) . ")</span>" : ''; ?>
     </td>
 </tr>
+<?php
+}
+?>
 <tr>
     <th>Bonus to Defense Skill</th>
     <td>
@@ -689,7 +830,93 @@ if (isset($ints[PropertyInt::ItemSpellcraft])) {
 ?>
 </table>
 
+<?php
+if (WEENIE_TYPE[$weapon['type']] == 'MissileLauncher') {
+?>
+<h3>Ammunition</h3>
 
+<table class="vertical-table">
+<tr>
+    <th>Name</th>
+    <td>
+        
+        <select name="ammoId">
+<?php
+    foreach ($ammoList as $ammoListOption) {
+?>
+            <option value="<?php echo $ammoListOption['id']; ?>"<?php echo $ammoListOption['id'] == $ammoId ? ' selected' : ''; ?>><?php echo $ammoListOption['name']; ?> (<?php echo $ammoListOption['code']; ?>)</option>
+<?php
+    }
+?>
+        </select>
+        
+        <input type="submit" value="Update" />
+    </td>
+</tr>
+<tr>
+    <th>Links</th>
+    <td>
+            <a href="http://acportalstorm.com/wiki/<?php echo str_replace(' ', '_', $ammo['name']); ?>" target="wiki">Wiki</a>
+    </td>
+</tr>
+<tr>
+    <th>Ammo Base Damage</th>
+    <td>
+        <?php echo $ammoMinDamage . ' - ' . $ammoDamage; ?>,
+        <?php echo $ammoDamageType; ?>
+    </td>
+</tr>
+<?php
+    if ($damage) {
+?>
+<tr>
+    <th>Damage Bonus</th>
+    <td>
+        <?php echo $damage; ?>
+        <?php echo isset($spellEffects[PropertyInt::WeaponAuraDamage]) ? "<span class=\"spell-effect\">(" . $buffedWeaponOnlyDamage . ")</span>" : ''; ?>
+    </td>
+</tr>
+<?php
+    }
+    if ($missileElementalDamageBonus) {
+?>
+<tr>
+    <th>Elemental Damage Bonus</th>
+    <td>
+        <?php echo ($canUseElementalDamageBonus ? $missileElementalDamageBonus : "Elemental bonus is for ${damageType}, ammo type is ${ammoDamageType}, not applying bonus"); ?>
+    </td>
+</tr>
+<?php
+    }
+?>
+<tr>
+    <th>Damage w/ Weapon Bonuses</th>
+    <td>
+        <?php echo $weaponAndAmmoMinDamage . ' - ' . $weaponAndAmmoDamage; ?>,
+        <?php echo $hasDamageBuffs ? "<span class=\"spell-effect\">(" . $buffedNonTotalWeaponAndAmmoMinDamage . ' - ' . $buffedNonTotalWeaponAndAmmoDamage . ")</span>" : ''; ?>
+        <?php echo $ammoDamageType; ?>
+    </td>
+</tr>
+<tr>
+    <th>Damage Modifier</th>
+    <td>
+        <?php echo $missileWeaponDamageModLabel; ?>
+    </td>
+</tr>
+<tr>
+    <th>Total Damage w/ Modifier</th>
+    <td>
+        <?php echo $totalWeaponAndAmmoDamage['min'] . ' - ' . $totalWeaponAndAmmoDamage['max']; ?>,
+        <?php echo $hasDamageBuffs ? "<span class=\"spell-effect\">(" . $buffedDamageObj['min'] . ' - ' . $buffedDamageObj['max'] . ")</span>" : ''; ?>
+        <?php echo $ammoDamageType; ?>
+    </td>
+</tr>
+</table>
+<?php
+}
+
+if ($weenieTypeName == 'MeleeWeapon') {
+?>
 <h3>Applying the effects of the power meter</h3>
 <table class="vertical-table">
 <tr>
@@ -698,11 +925,11 @@ if (isset($ints[PropertyInt::ItemSpellcraft])) {
         
         <select name="powerLevel">
 <?php
-foreach ($powerLevelOptions as $loopPowerLevel) {
+    foreach ($powerLevelOptions as $loopPowerLevel) {
 ?>
             <option value="<?php echo $loopPowerLevel; ?>"<?php echo $loopPowerLevel == $powerLevel ? ' selected' : ''; ?>><?php echo getPercentage($loopPowerLevel); ?></option>
 <?php
-}
+    }
 ?>
         </select>
         
@@ -729,7 +956,9 @@ foreach ($powerLevelOptions as $loopPowerLevel) {
     </td>
 </tr>
 </table>
-
+<?php
+}
+?>
 
 
 <h3>Applying the effects of your damage rating</h3>
@@ -895,13 +1124,13 @@ foreach ($creatureBodyArmor as $loopBodyPart => $loopBodyPartInfo) {
     </td>
 </tr>
 <tr>
-    <th><?php echo $damageType; ?>-specific armor multiplier</th>
+    <th><?php echo $weaponAndAmmoDamageType; ?>-specific armor multiplier</th>
     <td>
         <?php echo getPercentage($effectiveArmorObj['armorModVsType']); ?>
     </td>
 </tr>
 <tr>
-    <th>Effective AL for <?php echo $damageType; ?> before Imperil</th>
+    <th>Effective AL for <?php echo $weaponAndAmmoDamageType; ?> before Imperil</th>
     <td>
         <?php echo $effectiveArmorObj['armorVsType']; ?>
     </td>
@@ -946,7 +1175,7 @@ if ($phantasmal) {
 }
 ?>
 <tr>
-    <th>Effective AL for <?php echo $damageType; ?> after Imperil</th>
+    <th>Effective AL for <?php echo $weaponAndAmmoDamageType; ?> after Imperil</th>
     <td>
         <?php echo $effectiveArmorObj['effectiveArmorLevel']; ?>
     </td>
@@ -1059,7 +1288,7 @@ if (count($creatureShieldOptions) > 0) {
 <tr><td colspan="2"></td></tr>
 
 <tr>
-    <th><?php echo $damageType; ?>-specific shield multiplier</th>
+    <th><?php echo $weaponAndAmmoDamageType; ?>-specific shield multiplier</th>
     <td>
         <?php echo getPercentage($shieldModObj['armorModVsType']); ?>
     </td>
@@ -1083,7 +1312,7 @@ if (count($creatureShieldOptions) > 0) {
     }
 ?>
 <tr>
-    <th>Effective AL for <?php echo $damageType; ?></th>
+    <th>Effective AL for <?php echo $weaponAndAmmoDamageType; ?></th>
     <td>
         <?php echo $shieldModObj['effectiveArmorLevelAfterIgnore']; ?>
     </td>
@@ -1091,7 +1320,7 @@ if (count($creatureShieldOptions) > 0) {
 <tr><td colspan="2"></td></tr>
 
 <tr>
-    <th>Shield Modifier for <?php echo $damageType; ?></th>
+    <th>Shield Modifier for <?php echo $weaponAndAmmoDamageType; ?></th>
     <td>
         <?php echo getPercentage($shieldMod); ?>
     </td>
@@ -1116,7 +1345,7 @@ if (count($creatureShieldOptions) > 0) {
 }
 ?>
 
-<h3>Applying the effects of innate creature resistance to <?php echo $damageType; ?></h3>
+<h3>Applying the effects of innate creature resistance to <?php echo $weaponAndAmmoDamageType; ?></h3>
 <table class="vertical-table">
 <tr>
     <th>Damage before Creature Resistance <i>(Avg)</i></th>
@@ -1126,7 +1355,7 @@ if (count($creatureShieldOptions) > 0) {
     </td>
 </tr>
 <tr>
-    <th><?php echo $damageType; ?> Damage Modifier</th>
+    <th><?php echo $weaponAndAmmoDamageType; ?> Damage Modifier</th>
     <td>
         <?php echo getPercentage($creatureResistanceModVsType); ?>
     </td>

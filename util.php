@@ -161,6 +161,38 @@ function getCreaturesThatDropItem($treasureWeenieId) {
     return $rows;
 }
 
+
+function getAmmoList($ammoType) {
+    global $dbh;
+    
+$sql = "select 
+                                        weenie.class_Id id,
+                                        wps.value name,
+                                        weenie.type type,
+                                        wpi.value itemType,
+                                        weenie.class_Name code
+                                    from weenie 
+                                        join weenie_properties_string wps on (wps.object_Id = weenie.class_Id) 
+                                        join weenie_properties_int wpi on (wpi.object_Id = weenie.class_Id)
+                                    where
+                                        weenie.type = 5
+                                        and wpi.type = 50
+                                        and wpi.value = ?
+                                        and wps.type = 1
+                                    order by name asc";
+
+    $statement = $dbh->prepare($sql);
+
+    $statement->execute(array($ammoType));
+    $rows = array();
+    
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $rows[] = $row;
+    }
+    
+    return $rows;
+}
+
 function getBodyArmor($weenieId) {
     global $dbh;
 
@@ -351,7 +383,7 @@ function getWeaponDamageAttribute($skill, $weaponType) {
     if ($skill == 'Finesse Weapons') {
         return PropertyAttribute::Coordination;
     } else if ($skill == 'Missile Weapons') {
-        if ($weaponType == 'Thrown Weapons') {
+        if ($weaponType == 'Thrown Weapons' || $weaponType == 'Thrown') {
             return PropertyAttribute::Strength;
         } else {
             return PropertyAttribute::Coordination;
@@ -856,6 +888,17 @@ function getDamageTypeLabelFromBitmask($damageTypeBitMask) {
     return implode('/', $vals);
 }
 
+function getAmmoTypeLabelFromBitmask($ammoTypeBitMask) {
+    $vals = array();
+    
+    foreach (AMMO_TYPE as $key => $val) {
+        if ($val & $ammoTypeBitMask) {
+            $vals[] = $key;
+        }
+    }
+    
+    return implode('/', $vals);
+}
 function percentageBetween($x, $a, $b) {
     if ($x == 'INF') {
         return 1;
@@ -1149,6 +1192,7 @@ const CRAFTING_TYPES = [
 ];
 
 const WEAPON_WEENIE_TYPES = [
+    3, // MissileLauncher
     6 // MeleeWeapon
 ];
 
@@ -2443,6 +2487,21 @@ const ITEM_TYPES = array(
     536870912       => "TinkeringTool",
     1073741824      => "TinkeringMaterial",
     2147483648      => "Gameboard",
+);
+
+const AMMO_TYPE_INT = array(
+    1   => 'Arrow',
+    2   => 'Quarrel',
+    4   => 'Dart',
+    64  => 'Chorizite Arrow',
+    128 => 'Chorizite Quarrel',
+    256 => 'Chorizite Dart'
+);
+
+const WEAPON_AMMO_TYPES = array(
+    'Bow'       => array(1, 64),
+    'Crossbow'  => array(2, 128),
+    'Atlatl'    => array(4, 256)
 );
 
 const MATERIALS = [
